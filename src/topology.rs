@@ -6,19 +6,20 @@ use indexmap::IndexMap;
 pub use shape::*;
 ///
 /// Abstract topological data structure describes a basic entity
-pub enum Shape<const N: usize, V, E, W, F, L, D> {
-    Vertex(Vertex<N, V>),
-    Edge(Edge<N, E>),
-    Wire(Wire<N, W>),
-    Face(Face<N, F>),
-    Shell(Shell<N, L>),
-    Solid(Solid<N, D>),
-    Shape(Box<Shape<N, V, E, W, F, L, D>>),
-    Compound(Compound<N, V, E, W, F, L, D>),
+pub enum Shape<const N: usize, V, E, W, F, L, D, T> {
+    Vertex(Vertex<N, V, T>),
+    Edge(Edge<N, E, T>),
+    Wire(Wire<N, W, T>),
+    Face(Face<N, F, T>),
+    Shell(Shell<N, L, T>),
+    Solid(Solid<N, D, T>),
+    Shape(Box<Shape<N, V, E, W, F, L, D, T>>),
+    Compound(Compound<N, V, E, W, F, L, D, T>),
 }
 ///
 /// A group of any of the shapes
-pub struct Compound<const N: usize, V, E, W, F, L, D> {
-    shapes: IndexMap<String, Shape<N, V, E, W, F, L, D>>,
-    attrs: Option<Attrs>,
+#[allow(clippy::type_complexity)]
+pub struct Compound<const N: usize, V, E, W, F, L, D, T> {
+    shapes: IndexMap<String, Shape<N, V, E, W, F, L, D, T>>,
+    attrs: Option<Attrs<T>>,
 }

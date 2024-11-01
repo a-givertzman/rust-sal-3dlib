@@ -1,75 +1,51 @@
 use super::*;
-use crate::{
-    gmath::Point,
-    ops::boolean::{Intersect, OpConf},
-    props::{Dist, Metadata},
-};
+use crate::{gmath::Point, props::Dist};
 //
 //
-impl<const N: usize, T> Vertex<N, T> {
+impl<const N: usize, V, T> Vertex<N, V, T> {
+    ///
+    /// Returns numeric representation
     pub fn point(&self) -> [f64; N]
     where
-        Point<N>: for<'a> From<&'a T>,
+        Point<N>: for<'a> From<&'a V>,
     {
         *Point::from(&self.inner)
     }
-
+    //
+    //
     pub fn new(val: impl Into<[f64; N]>) -> Self
     where
-        T: From<Point<N>>,
+        V: From<Point<N>>,
     {
         Self {
-            inner: T::from(Point(val.into())),
+            inner: V::from(Point(val.into())),
             attrs: None,
         }
     }
-
+    ///
+    /// Returns zeroed Vertex
+    /// ```
+    /// let v = Vertex::<3, [f64; 3]>::origin();
+    /// let p = v.point();
+    /// assert_eq!(p, [0.0; 3]);
+    /// ```
     pub fn origin() -> Self
     where
-        T: From<Point<N>>,
+        V: From<Point<N>>,
     {
         Self {
-            inner: T::from(Point([0.0; N])),
+            inner: V::from(Point([0.0; N])),
             attrs: None,
         }
     }
 }
-
-impl<const N: usize, T> From<T> for Vertex<N, T> {
-    fn from(val: T) -> Self {
-        Self {
-            inner: val,
-            attrs: None,
-        }
-    }
-}
-
-impl<const N: usize, V, C> Intersect<Vertex<N, V>, C> for Vertex<N, V>
+//
+//
+impl<const N: usize, V, T> Dist<Vertex<N, V, T>> for Vertex<N, V, T>
 where
-    V: Intersect<V, C, Output = Option<V>>,
-    OpConf: From<C>,
+    V: Dist<V>,
 {
-    type Output = Option<Vertex<N, V>>;
-
-    fn intersect(&self, vertex: &Vertex<N, V>, conf: C) -> Self::Output {
-        self.inner.intersect(&vertex.inner, conf).map(|v| Self {
-            inner: v,
-            attrs: None,
-        })
-    }
-}
-
-impl<const N: usize, T> Dist<Vertex<N, T>> for Vertex<N, T>
-where
-    T: Dist<T>,
-{
-    fn dist(&self, other: &Vertex<N, T>) -> f64 {
+    fn dist(&self, other: &Vertex<N, V, T>) -> f64 {
         self.inner.dist(&other.inner)
-    }
-}
-
-impl<const N: usize, T> Metadata for Vertex<N, T> {
-    fn attrs(&self) -> Option<&Attrs> {
-        self.attrs.as_ref()
     }
 }

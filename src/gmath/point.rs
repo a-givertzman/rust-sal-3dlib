@@ -1,7 +1,8 @@
 use super::*;
+use std::ops::Deref;
 //
 //
-impl<const N: usize> std::ops::Deref for Point<N> {
+impl<const N: usize> Deref for Point<N> {
     type Target = [f64; N];
     //
     //

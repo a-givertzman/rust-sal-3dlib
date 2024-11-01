@@ -27,11 +27,17 @@ pub trait Dist<T> {
 }
 ///
 /// Manages attached information
-pub trait Metadata {
-    fn attrs(&self) -> Option<&Attrs>;
+pub trait Metadata<T> {
+    fn attrs(&self) -> Option<&Attrs<T>>;
+    //
+    //
+    fn attrs_mut(&mut self) -> Option<&mut Attrs<T>>;
 }
-///
-/// User defined attributes
-pub struct Attrs {
-    pub tag: String,
+//
+//
+pub struct Attrs<T> {
+    pub name: String,
+    ///
+    /// User defined metadata
+    pub custom: T,
 }

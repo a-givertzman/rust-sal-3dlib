@@ -9,19 +9,24 @@ use crate::{
 };
 //
 //
-impl<const N: usize, L> Metadata for Shell<N, L> {
-    fn attrs(&self) -> Option<&Attrs> {
+impl<const N: usize, L, T> Metadata<T> for Shell<N, L, T> {
+    fn attrs(&self) -> Option<&Attrs<T>> {
         self.attrs.as_ref()
+    }
+    //
+    //
+    fn attrs_mut(&mut self) -> Option<&mut Attrs<T>> {
+        self.attrs.as_mut()
     }
 }
 //
 //
-impl<const N: usize, L, V, A> Rotate<Vertex<N, V>, A> for Shell<N, L>
+impl<const N: usize, L, V, A, T> Rotate<Vertex<N, V, T>, A> for Shell<N, L, T>
 where
     L: Rotate<V, A>,
     A: Into<Vector<N>>,
 {
-    fn rotate(self, origin: Vertex<N, V>, axis: A, angle: f64) -> Self {
+    fn rotate(self, origin: Vertex<N, V, T>, axis: A, angle: f64) -> Self {
         let origin = origin.inner;
         Self {
             inner: self.inner.rotate(origin, axis, angle),
@@ -31,7 +36,7 @@ where
 }
 //
 //
-impl<const N: usize, L, D> Translate<D> for Shell<N, L>
+impl<const N: usize, L, D, T> Translate<D> for Shell<N, L, T>
 where
     L: Translate<D>,
     D: Into<Vector<N>>,
@@ -45,17 +50,17 @@ where
 }
 //
 //
-impl<const N: usize, L, F, C, D> Volume<&Face<N, F>, C> for Shell<N, L>
+impl<const N: usize, L, F, C, D, T> Volume<Face<N, F, T>, C> for Shell<N, L, T>
 where
-    L: for<'a> Volume<&'a F, C, Output = Option<D>>,
+    L: Volume<F, C, Output = Option<D>>,
     VolumeConf: From<C>,
 {
-    type Output = Option<Solid<N, D>>;
+    type Output = Option<Solid<N, D, T>>;
     //
     //
-    fn volume(&self, face: &Face<N, F>, conf: C) -> Self::Output {
-        self.inner.volume(&face.inner, conf).map(|d| Solid {
-            inner: d,
+    fn volume(&self, face: &Face<N, F, T>, conf: C) -> Self::Output {
+        self.inner.volume(&face.inner, conf).map(|solid| Solid {
+            inner: solid,
             attrs: None,
         })
     }

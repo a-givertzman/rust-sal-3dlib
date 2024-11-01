@@ -8,7 +8,7 @@ where
     type Output;
     //
     //
-    fn volume(&self, rhs: Rhs, conf: C) -> Self::Output;
+    fn volume(&self, rhs: &Rhs, conf: C) -> Self::Output;
 }
 ///
 /// Provides options for [Volume] operation:
