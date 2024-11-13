@@ -27,3 +27,13 @@ where
         }
     }
 }
+//
+//
+impl<const N: usize, D, T> From<(D, Attributes<T>)> for Solid<N, D, T> {
+    fn from((solid, attrs): (D, Attributes<T>)) -> Self {
+        Self {
+            inner: solid,
+            attrs: Some(attrs),
+        }
+    }
+}

@@ -10,12 +10,12 @@ use crate::{
 //
 //
 impl<const N: usize, L, T> Metadata<T> for Shell<N, L, T> {
-    fn attrs(&self) -> Option<&Attrs<T>> {
+    fn attrs(&self) -> Option<&Attributes<T>> {
         self.attrs.as_ref()
     }
     //
     //
-    fn attrs_mut(&mut self) -> Option<&mut Attrs<T>> {
+    fn attrs_mut(&mut self) -> Option<&mut Attributes<T>> {
         self.attrs.as_mut()
     }
 }
@@ -26,10 +26,10 @@ where
     L: Rotate<V, A>,
     A: Into<Vector<N>>,
 {
-    fn rotate(self, origin: Vertex<N, V, T>, axis: A, angle: f64) -> Self {
+    fn rotated(self, origin: Vertex<N, V, T>, axis: A, angle: f64) -> Self {
         let origin = origin.inner;
         Self {
-            inner: self.inner.rotate(origin, axis, angle),
+            inner: self.inner.rotated(origin, axis, angle),
             attrs: self.attrs,
         }
     }
@@ -41,9 +41,9 @@ where
     L: Translate<D>,
     D: Into<Vector<N>>,
 {
-    fn translate(self, dir: D) -> Self {
+    fn translated(self, dir: D) -> Self {
         Self {
-            inner: self.inner.translate(dir),
+            inner: self.inner.translated(dir),
             attrs: self.attrs,
         }
     }
@@ -63,5 +63,15 @@ where
             inner: solid,
             attrs: None,
         })
+    }
+}
+//
+//
+impl<const N: usize, L, T> From<(L, Attributes<T>)> for Shell<N, L, T> {
+    fn from((shell, attrs): (L, Attributes<T>)) -> Self {
+        Self {
+            inner: shell,
+            attrs: Some(attrs),
+        }
     }
 }

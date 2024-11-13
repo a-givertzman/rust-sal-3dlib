@@ -1,5 +1,9 @@
 use super::*;
-use crate::props::{Area, Center};
+use crate::{
+    gmath::Vector,
+    ops::transform::{Rotate, Translate},
+    props::{Area, Center},
+};
 //
 //
 impl<const N: usize, F, V, T> Center for Face<N, F, T>
@@ -37,5 +41,44 @@ where
             inner: face,
             attrs: None,
         })
+    }
+}
+//
+//
+impl<const N: usize, L, V, A, T> Rotate<Vertex<N, V, T>, A> for Face<N, L, T>
+where
+    L: Rotate<V, A>,
+    A: Into<Vector<N>>,
+{
+    fn rotated(self, origin: Vertex<N, V, T>, axis: A, angle: f64) -> Self {
+        let origin = origin.inner;
+        Self {
+            inner: self.inner.rotated(origin, axis, angle),
+            attrs: self.attrs,
+        }
+    }
+}
+//
+//
+impl<const N: usize, L, D, T> Translate<D> for Face<N, L, T>
+where
+    L: Translate<D>,
+    D: Into<Vector<N>>,
+{
+    fn translated(self, dir: D) -> Self {
+        Self {
+            inner: self.inner.translated(dir),
+            attrs: self.attrs,
+        }
+    }
+}
+//
+//
+impl<const N: usize, F, T> From<(F, Attributes<T>)> for Face<N, F, T> {
+    fn from((face, attrs): (F, Attributes<T>)) -> Self {
+        Self {
+            inner: face,
+            attrs: Some(attrs),
+        }
     }
 }

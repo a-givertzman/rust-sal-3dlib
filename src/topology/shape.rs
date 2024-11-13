@@ -1,43 +1,53 @@
+//! Main topological entities.
+//
+mod compound;
+mod edge;
 mod face;
 mod shell;
 mod solid;
 mod vertex;
 mod wire;
 //
-use crate::props::Attrs;
+use crate::props::Attributes;
 ///
-/// A zero-dimensional shape corresponding to a point in geometry
+/// Zero-size shape corresponding to a point in the geometry.
 pub struct Vertex<const N: usize, V, T> {
     inner: V,
-    attrs: Option<Attrs<T>>,
+    attrs: Option<Attributes<T>>,
 }
 ///
-/// A single dimensional shape corresponding to a curve
+/// One-dimensional shape corresponding to a curve.
 pub struct Edge<const N: usize, E, T> {
     inner: E,
-    attrs: Option<Attrs<T>>,
+    attrs: Option<Attributes<T>>,
 }
 ///
-/// A sequence of edges connected by their vertices
+/// Sequence of edges connected by their vertices.
 pub struct Wire<const N: usize, W, T> {
     inner: W,
-    attrs: Option<Attrs<T>>,
+    attrs: Option<Attributes<T>>,
 }
 ///
-/// Part of a plane (in 2D geometry) or a surface (in 3D geometry) bounded by a closed wire
+/// Part of a surface (e. g. a plane in 2D geometry) bounded by a closed wire.
 pub struct Face<const N: usize, F, T> {
     inner: F,
-    attrs: Option<Attrs<T>>,
+    attrs: Option<Attributes<T>>,
 }
 ///
-/// A set of faces connected by some of the edges of their wire boundaries
+/// Set of faces connected by some edges of their wire boundaries.
 pub struct Shell<const N: usize, L, T> {
     inner: L,
-    attrs: Option<Attrs<T>>,
+    attrs: Option<Attributes<T>>,
 }
 ///
-/// A part of 3D space bounded by shells
+/// Part of the N-dimensional space bounded by shells.
 pub struct Solid<const N: usize, D, T> {
     inner: D,
-    attrs: Option<Attrs<T>>,
+    attrs: Option<Attributes<T>>,
+}
+///
+/// Group of any of main entities.
+pub struct Compound<const N: usize, C, T> {
+    inner: C,
+    attrs: Option<Attributes<T>>,
 }
