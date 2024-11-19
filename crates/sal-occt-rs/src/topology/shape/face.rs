@@ -1,7 +1,7 @@
 use super::*;
 use crate::gmath::Vector;
 use glam::DVec3;
-use sal_3dlib::{
+use sal_3dlib_core::{
     ops::transform::{Rotate, Translate},
     props::{Area, Center},
 };

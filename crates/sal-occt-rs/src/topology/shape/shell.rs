@@ -1,7 +1,7 @@
 use super::*;
 use crate::ops::boolean::volume::VolumeConf;
 use anyhow::Result;
-use sal_3dlib::{ops::boolean::volume::Volume, props::Center};
+use sal_3dlib_core::{ops::boolean::volume::Volume, props::Center};
 //
 //
 impl Volume<Face, VolumeConf, Result<Solid>> for Shell {

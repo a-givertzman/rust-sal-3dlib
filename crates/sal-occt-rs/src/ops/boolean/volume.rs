@@ -1,13 +1,13 @@
-//! Implementation of [sal_3dlib::ops::boolean::volume].
+//! Implementation of [sal_3dlib_core::ops::boolean::volume].
 //
 use super::*;
-use sal_3dlib::ops::boolean::volume;
+use sal_3dlib_core::ops::boolean::volume;
 ///
-/// See [sal_3dlib::ops::boolean::volume::VolumeConf] for details.
+/// See [sal_3dlib_core::ops::boolean::volume::VolumeConf] for details.
 #[derive(Clone, Copy)]
 pub struct VolumeConf {
     ///
-    /// See [sal_3dlib::ops::boolean::OpConf::parallel] for details.
+    /// See [sal_3dlib_core::ops::boolean::OpConf::parallel] for details.
     pub parallel: bool,
 }
 //

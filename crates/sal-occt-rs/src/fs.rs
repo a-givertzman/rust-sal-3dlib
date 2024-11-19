@@ -2,7 +2,7 @@
 //
 use crate::{prelude, topology::shape};
 use opencascade::primitives::{self, ShapeType};
-use sal_3dlib::props::Attributes;
+use sal_3dlib_core::props::Attributes;
 use std::path::Path;
 ///
 /// Reader of various file format.

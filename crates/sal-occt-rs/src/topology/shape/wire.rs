@@ -1,7 +1,7 @@
 use super::*;
 use crate::gmath::Point;
 use glam::DVec3;
-use sal_3dlib::ops::Polygon;
+use sal_3dlib_core::ops::Polygon;
 //
 //
 impl Polygon<Vertex> for Wire {

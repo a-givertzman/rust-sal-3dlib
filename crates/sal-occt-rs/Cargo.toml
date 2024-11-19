@@ -7,7 +7,7 @@ edition = "2021"
 anyhow = "1.0.93"
 cxx = "1.0.130"
 glam = { version = "0.24", features = ["bytemuck"] }
-sal-3dlib = { path = "../sal-3dlib/" }
+sal-3dlib-core = { path = "../sal-3dlib-core/" }
 opencascade = { git = "https://github.com/novartole/opencascade-rs.git", branch = "dev" }
 
 [dev-dependencies]

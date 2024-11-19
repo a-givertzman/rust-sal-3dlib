@@ -1,4 +1,15 @@
 [package]
 name = "sal-3dlib"
-version = "0.0.1"
+version = "0.1.0"
 edition = "2021"
+
+[dependencies]
+sal-3dlib-core = { path = "../sal-3dlib-core/" }
+sal-occt-rs = { path = "../sal-occt-rs/" }
+
+[dev-dependencies]
+debugging.workspace = true
+env_logger.workspace = true
+log.workspace = true
+testing.workspace = true
+sal-sync.workspace = true

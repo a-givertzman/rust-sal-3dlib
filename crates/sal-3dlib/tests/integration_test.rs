@@ -1,14 +1,21 @@
 use debugging::session::debug_session::{Backtrace, DebugSession, LogLevel};
 use sal_3dlib::{
+    fs::Reader,
+    gmath::Vector,
     ops::{
-        boolean::{volume::Volume, Intersect},
+        boolean::{
+            volume::{Volume, VolumeConf},
+            Intersect, OpConf,
+        },
         transform::{Rotate, Translate},
         Polygon,
     },
     props::{Center, Metadata, Volume as _},
-    topology::Vertex,
+    topology::{
+        shape::{Face, Vertex, Wire},
+        Shape,
+    },
 };
-use sal_occt_rs::{fs::Reader, prelude::*};
 use std::{
     f64::consts::PI,
     sync::Once,

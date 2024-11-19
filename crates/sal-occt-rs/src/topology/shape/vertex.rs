@@ -1,7 +1,7 @@
 use super::*;
 use crate::gmath::Point;
 use glam::DVec3;
-use sal_3dlib::props::Dist;
+use sal_3dlib_core::props::Dist;
 //
 //
 impl From<Point> for Vertex {

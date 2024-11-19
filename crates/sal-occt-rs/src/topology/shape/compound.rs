@@ -1,5 +1,5 @@
 use super::*;
-use sal_3dlib::props::Center;
+use sal_3dlib_core::props::Center;
 //
 //
 impl Center for Compound {

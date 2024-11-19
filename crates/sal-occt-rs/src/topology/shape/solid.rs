@@ -1,7 +1,7 @@
 use super::*;
 use crate::ops::boolean::OpConf;
 use primitives::IntoShape;
-use sal_3dlib::{ops::boolean::Intersect, props::Volume};
+use sal_3dlib_core::{ops::boolean::Intersect, props::Volume};
 //
 //
 impl Volume for Solid {
