@@ -1,16 +1,11 @@
-[package]
-name = "sal-3dlib"
-version = "0.0.1"
-edition = "2021"
-
 [workspace]
-members = ["research/*"]
+resolver = "2"
+members = ["crates/*"]
+exclude = ["research/try-occt-rs"]
 
-[dependencies]
-log = "^0.4"
-indexmap = "2.6.0"
-env_logger = "^0.11"
-sal-sync = { git = "https://github.com/a-givertzman/rust-sal-sync.git" }
-
-testing = { git = "https://github.com/a-givertzman/rust-testing.git" }
+[workspace.dependencies]
 debugging = { git = "https://github.com/a-givertzman/rust-debuging.git", tag = "0.0.1" }
+env_logger = "^0.11"
+log = "^0.4"
+sal-sync = { git = "https://github.com/a-givertzman/rust-sal-sync.git" }
+testing = { git = "https://github.com/a-givertzman/rust-testing.git" }

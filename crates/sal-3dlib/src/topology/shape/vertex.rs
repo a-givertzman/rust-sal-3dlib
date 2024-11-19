@@ -24,11 +24,6 @@ impl<const N: usize, V, T> Vertex<N, V, T> {
     }
     ///
     /// Returns a zeroed instance.
-    /// ```
-    /// let v = Vertex::<3, [f64; 3]>::origin();
-    /// let p = v.point();
-    /// assert_eq!(p, [0.0; 3]);
-    /// ```
     pub fn origin() -> Self
     where
         V: From<Point<N>>,

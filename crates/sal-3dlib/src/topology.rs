@@ -13,5 +13,4 @@ pub enum Shape<const N: usize, V, E, W, F, L, D, C, T> {
     Shell(Shell<N, L, T>),
     Solid(Solid<N, D, T>),
     Compound(Compound<N, C, T>),
-    Shape(Box<Self>),
 }

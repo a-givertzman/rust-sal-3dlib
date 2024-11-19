@@ -3,36 +3,30 @@
 pub mod volume;
 ///
 /// Union of two groups.
-pub trait Fuse<Rhs, C>
+pub trait Fuse<Rhs, C, O>
 where
     OpConf: From<C>,
 {
-    type Output;
-    //
     /// Returns the union of `&self` and `&rhs`. It's configured using `conf`.
-    fn fuse(&self, rhs: &Rhs, conf: C) -> Self::Output;
+    fn fuse(&self, rhs: &Rhs, conf: C) -> O;
 }
 ///
 /// Intersection of two groups.
-pub trait Intersect<Rhs, C>
+pub trait Intersect<Rhs, C, O>
 where
     OpConf: From<C>,
 {
-    type Output;
-    ///
     /// Returns the common part of `&self` and `&rhs`. It's configured using `conf`.
-    fn intersect(&self, rhs: &Rhs, conf: C) -> Self::Output;
+    fn intersect(&self, rhs: &Rhs, conf: C) -> O;
 }
 ///
 /// Difference between two groups.
-pub trait Cut<Rhs, C>
+pub trait Cut<Rhs, C, O>
 where
     OpConf: From<C>,
 {
-    type Output;
-    ///
     /// Returns the difference between `&self` and `&rhs`. It's configured using `conf`.
-    fn cut(&self, rhs: &Rhs, conf: C) -> Self::Output;
+    fn cut(&self, rhs: &Rhs, conf: C) -> O;
 }
 ///
 /// Config to perform [Fuse], [Intersect] and [Cut].

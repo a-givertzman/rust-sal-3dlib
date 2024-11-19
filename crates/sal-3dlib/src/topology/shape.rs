@@ -1,5 +1,7 @@
 //! Main topological entities.
 //
+#![allow(dead_code)]
+//
 mod compound;
 mod edge;
 mod face;
@@ -35,14 +37,14 @@ pub struct Face<const N: usize, F, T> {
 }
 ///
 /// Set of faces connected by some edges of their wire boundaries.
-pub struct Shell<const N: usize, L, T> {
-    inner: L,
+pub struct Shell<const N: usize, S, T> {
+    inner: S,
     attrs: Option<Attributes<T>>,
 }
 ///
 /// Part of the N-dimensional space bounded by shells.
-pub struct Solid<const N: usize, D, T> {
-    inner: D,
+pub struct Solid<const N: usize, S, T> {
+    inner: S,
     attrs: Option<Attributes<T>>,
 }
 ///

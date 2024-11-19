@@ -82,3 +82,13 @@ impl<T> Attributes<T> {
         &mut self.custom
     }
 }
+//
+//
+impl<T: Clone> Clone for Attributes<T> {
+    fn clone(&self) -> Self {
+        Self {
+            name: self.name.clone(),
+            custom: self.custom.clone(),
+        }
+    }
+}

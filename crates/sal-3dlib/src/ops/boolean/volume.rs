@@ -3,14 +3,13 @@
 use super::*;
 ///
 /// Volume creation algorithm.
-pub trait Volume<Rhs, C>
+pub trait Volume<Rhs, C, O>
 where
     VolumeConf: From<C>,
 {
-    type Output;
     ///
     /// Returns the volume of `&self` and `&rhs`. It's configured using `conf`.
-    fn volume(&self, rhs: &Rhs, conf: C) -> Self::Output;
+    fn volume(&self, rhs: &Rhs, conf: C) -> O;
 }
 ///
 /// Configuration used to perform [Volume].

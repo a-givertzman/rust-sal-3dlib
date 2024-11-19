@@ -45,9 +45,9 @@ where
 }
 //
 //
-impl<const N: usize, L, V, A, T> Rotate<Vertex<N, V, T>, A> for Face<N, L, T>
+impl<const N: usize, F, V, A, T> Rotate<Vertex<N, V, T>, A> for Face<N, F, T>
 where
-    L: Rotate<V, A>,
+    F: Rotate<V, A>,
     A: Into<Vector<N>>,
 {
     fn rotated(self, origin: Vertex<N, V, T>, axis: A, angle: f64) -> Self {
@@ -60,9 +60,9 @@ where
 }
 //
 //
-impl<const N: usize, L, D, T> Translate<D> for Face<N, L, T>
+impl<const N: usize, F, D, T> Translate<D> for Face<N, F, T>
 where
-    L: Translate<D>,
+    F: Translate<D>,
     D: Into<Vector<N>>,
 {
     fn translated(self, dir: D) -> Self {
@@ -79,6 +79,20 @@ impl<const N: usize, F, T> From<(F, Attributes<T>)> for Face<N, F, T> {
         Self {
             inner: face,
             attrs: Some(attrs),
+        }
+    }
+}
+//
+//
+impl<const N: usize, F, T> Clone for Face<N, F, T>
+where
+    F: Clone,
+    T: Clone,
+{
+    fn clone(&self) -> Self {
+        Self {
+            inner: self.inner.clone(),
+            attrs: self.attrs.clone(),
         }
     }
 }
