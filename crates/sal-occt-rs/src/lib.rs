@@ -3,6 +3,8 @@
 pub mod fs;
 pub mod gmath;
 pub mod ops;
+#[cfg(test)]
+mod tests;
 mod topology;
 mod export {
     pub mod topology {
