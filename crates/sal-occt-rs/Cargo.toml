@@ -1,0 +1,18 @@
+[package]
+name = "sal-occt-rs"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+anyhow = "1.0.93"
+cxx = "1.0.130"
+glam = { version = "0.24", features = ["bytemuck"] }
+sal-3dlib-core = { path = "../sal-3dlib-core/" }
+opencascade = { git = "https://github.com/novartole/opencascade-rs.git", branch = "dev" }
+
+[dev-dependencies]
+debugging.workspace = true
+env_logger.workspace = true
+log.workspace = true
+testing.workspace = true
+sal-sync.workspace = true
