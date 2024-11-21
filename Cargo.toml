@@ -3,6 +3,10 @@ resolver = "2"
 members = ["crates/*"]
 exclude = ["research/try-occt-rs"]
 
+[workspace.package]
+edition = "2021"
+version = "0.0.1"
+
 [workspace.dependencies]
 debugging = { git = "https://github.com/a-givertzman/rust-debuging.git", tag = "0.0.1" }
 env_logger = "^0.11"
