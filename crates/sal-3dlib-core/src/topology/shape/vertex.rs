@@ -54,3 +54,17 @@ impl<const N: usize, V, T> From<(V, Attributes<T>)> for Vertex<N, V, T> {
         }
     }
 }
+//
+//
+impl<const N: usize, V, T> Clone for Vertex<N, V, T>
+where
+    V: Clone,
+    T: Clone,
+{
+    fn clone(&self) -> Self {
+        Self {
+            inner: self.inner.clone(),
+            attrs: self.attrs.clone(),
+        }
+    }
+}
