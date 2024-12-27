@@ -9,3 +9,17 @@ impl<const N: usize, E, T> From<(E, Attributes<T>)> for Edge<N, E, T> {
         }
     }
 }
+//
+//
+impl<const N: usize, E, T> Clone for Edge<N, E, T>
+where
+    E: Clone,
+    T: Clone,
+{
+    fn clone(&self) -> Self {
+        Self {
+            inner: self.inner.clone(),
+            attrs: self.attrs.clone(),
+        }
+    }
+}

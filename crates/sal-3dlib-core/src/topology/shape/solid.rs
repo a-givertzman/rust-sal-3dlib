@@ -35,3 +35,17 @@ impl<const N: usize, S, T> From<(S, Attributes<T>)> for Solid<N, S, T> {
         }
     }
 }
+//
+//
+impl<const N: usize, S, T> Clone for Solid<N, S, T>
+where
+    S: Clone,
+    T: Clone,
+{
+    fn clone(&self) -> Self {
+        Self {
+            inner: self.inner.clone(),
+            attrs: self.attrs.clone(),
+        }
+    }
+}

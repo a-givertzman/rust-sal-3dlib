@@ -29,3 +29,17 @@ impl<const N: usize, W, T> From<(W, Attributes<T>)> for Wire<N, W, T> {
         }
     }
 }
+//
+//
+impl<const N: usize, W, T> Clone for Wire<N, W, T>
+where
+    W: Clone,
+    T: Clone,
+{
+    fn clone(&self) -> Self {
+        Self {
+            inner: self.inner.clone(),
+            attrs: self.attrs.clone(),
+        }
+    }
+}

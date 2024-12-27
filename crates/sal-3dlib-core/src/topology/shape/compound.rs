@@ -26,3 +26,17 @@ where
         }
     }
 }
+//
+//
+impl<const N: usize, C, T> Clone for Compound<N, C, T>
+where
+    C: Clone,
+    T: Clone,
+{
+    fn clone(&self) -> Self {
+        Self {
+            inner: self.inner.clone(),
+            attrs: self.attrs.clone(),
+        }
+    }
+}
