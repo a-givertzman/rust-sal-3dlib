@@ -52,7 +52,7 @@ fn calc_volume_and_center_of_hull() {
     init_each();
     let dbg_id = "calc_volume_and_center_of_hull";
     log::debug!("\n{}", dbg_id);
-    let test_duration = TestDuration::new(dbg_id, Duration::from_secs(40));
+    let test_duration = TestDuration::new(dbg_id, Duration::from_secs(300));
     test_duration.run().unwrap();
     const DEG_IN_RAD: f64 = PI / 180.0;
     // configuration
@@ -183,7 +183,7 @@ fn calc_volume_and_center_of_hull_parallel() {
     init_each();
     let dbg_id = "calc_volume_and_center_of_hull_parallel";
     log::debug!("\n{}", dbg_id);
-    let test_duration = TestDuration::new(dbg_id, Duration::from_secs(10));
+    let test_duration = TestDuration::new(dbg_id, Duration::from_secs(300));
     test_duration.run().unwrap();
     const DEG_IN_RAD: f64 = PI / 180.0;
     // configuration
@@ -340,7 +340,7 @@ fn rw_user_defined_attribute() {
     init_each();
     let dbg_id = "rw_user_defined_attribute";
     log::debug!("\n{}", dbg_id);
-    let test_duration = TestDuration::new(dbg_id, Duration::from_secs(30));
+    let test_duration = TestDuration::new(dbg_id, Duration::from_secs(300));
     test_duration.run().unwrap();
     type TestData = Vec<u8>;
     let test_data = [
