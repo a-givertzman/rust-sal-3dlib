@@ -22,7 +22,7 @@ pub mod ops {
         pub use sal_3dlib_core::ops::boolean::*;
         pub use sal_occt_rs::ops::boolean::OpConf;
     }
-    pub use sal_3dlib_core::ops::{transform, Polygon};
+    pub use sal_3dlib_core::ops::{transform, Polygon, Solidify};
 }
 pub use sal_3dlib_core::props;
 pub use sal_occt_rs::export::topology;
