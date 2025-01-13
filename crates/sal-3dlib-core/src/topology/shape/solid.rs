@@ -1,7 +1,7 @@
 use super::*;
 use crate::{
     ops::boolean::{Intersect, OpConf},
-    props::Volume,
+    props::{Center, Volume},
 };
 //
 //
@@ -46,6 +46,22 @@ where
         Self {
             inner: self.inner.clone(),
             attrs: self.attrs.clone(),
+        }
+    }
+}
+//
+//
+impl<const N: usize, S, V, T> Center for Solid<N, S, T>
+where
+    S: Center<Output = V>,
+{
+    type Output = Vertex<N, V, T>;
+    //
+    //
+    fn center(&self) -> Self::Output {
+        Vertex::<N, V, T> {
+            inner: self.inner.center(),
+            attrs: None,
         }
     }
 }
