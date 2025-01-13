@@ -10,7 +10,7 @@ use sal_3dlib::{
         transform::{Rotate, Translate},
         Polygon,
     },
-    props::{Center, Metadata, Volume as _},
+    props::{Center, Metadata, Volume as VolumeProp},
     topology::{
         shape::{Face, Vertex, Wire},
         Shape,
@@ -146,7 +146,7 @@ fn calc_volume_and_center_of_hull() {
         time = Instant::now();
         let bottom_part = hull.volume(&plane, vol_conf).expect("Ok(*bottom_part*)");
         log::debug!("*hull*.volumed | elapsed: {:?}", time.elapsed());
-        let (result, target) = (bottom_part.volume(), volume);
+        let (result, target) = (VolumeProp::volume(&bottom_part), volume);
         assert!(
             (result - target).abs() < f64::EPSILON,
             "step {} *volume*\n result: {}\n target: {}",
@@ -291,7 +291,7 @@ fn calc_volume_and_center_of_hull_parallel() {
                         step,
                         time.elapsed()
                     );
-                    let (result, target) = (bottom_part.volume(), volume);
+                    let (result, target) = (VolumeProp::volume(&bottom_part), volume);
                     assert!(
                         (result - target).abs() < f64::EPSILON,
                         "step {} *volume*\n result: {}\n target: {}",
