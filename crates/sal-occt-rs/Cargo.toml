@@ -9,10 +9,10 @@ cxx = "1.0.130"
 glam = { version = "0.24", features = ["bytemuck"] }
 sal-3dlib-core = { path = "../sal-3dlib-core/" }
 opencascade = { git = "https://github.com/novartole/opencascade-rs.git", branch = "dev" }
+sal-sync.workspace = true
 
 [dev-dependencies]
 debugging.workspace = true
 env_logger.workspace = true
 log.workspace = true
 testing.workspace = true
-sal-sync.workspace = true
