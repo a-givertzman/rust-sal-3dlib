@@ -2,7 +2,7 @@
 //
 #![allow(dead_code)]
 //
-mod compound;
+pub mod compound;
 mod edge;
 mod face;
 mod shell;

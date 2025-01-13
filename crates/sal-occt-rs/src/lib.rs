@@ -13,6 +13,9 @@ pub mod export {
         ///
         /// Implementation of [sal_3dlib_core::topology].
         pub mod shape {
+            pub mod compound {
+                pub use super::topology::compound::Solids;
+            }
             use sal_3dlib_core::topology;
             ///
             /// See [sal_3dlib_core::topology::Vertex] for details.
@@ -48,7 +51,10 @@ pub mod export {
 /// Re-export of triats and structures (all in one) for easy access.
 pub mod prelude {
     use super::*;
-    pub use export::topology::{shape::*, *};
+    pub use export::topology::{
+        shape::{compound::*, *},
+        *,
+    };
     pub use gmath::*;
     pub use ops::boolean::{volume::*, *};
 }

@@ -1,6 +1,8 @@
 use super::*;
+use primitives::IntoShape;
 use sal_3dlib_core::ops::Solidify;
 use sal_3dlib_core::props::Center;
+use sal_3dlib_core::topology::compound::Solids;
 use sal_sync::services::entity::error::str_err::StrErr;
 //
 //
@@ -44,5 +46,12 @@ impl Solidify<Face, Shell, Solid> for Compound {
             },
             |compound| Ok(Self(compound)),
         )
+    }
+}
+//
+//
+impl Solids<Solid> for Compound {
+    fn solids(&self) -> impl IntoIterator<Item = Solid> {
+        self.0.as_ref().into_shape().solids().map(Solid)
     }
 }

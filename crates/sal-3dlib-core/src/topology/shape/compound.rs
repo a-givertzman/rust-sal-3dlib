@@ -72,3 +72,23 @@ where
         })
     }
 }
+///
+/// Object, which can be represented as solids.
+pub trait Solids<T> {
+    ///
+    /// Returns iterator over solids.
+    fn solids(&self) -> impl IntoIterator<Item = T>;
+}
+//
+//
+impl<const N: usize, S, C, T> Solids<Solid<N, S, T>> for Compound<N, C, T>
+where
+    C: Solids<S>,
+{
+    fn solids(&self) -> impl IntoIterator<Item = Solid<N, S, T>> {
+        self.inner.solids().into_iter().map(|solid| Solid {
+            inner: solid,
+            attrs: None,
+        })
+    }
+}
