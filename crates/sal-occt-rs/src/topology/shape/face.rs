@@ -36,8 +36,8 @@ impl TryFrom<&Wire> for Face {
 //
 //
 impl Rotate<Vertex, Vector> for Face {
-    fn rotated(self, _origin: Vertex, axis: Vector, rad: f64) -> Self {
-        Self(self.0.rotated(DVec3::from_array(*axis.0), rad))
+    fn rotated(self, origin: Vertex, axis: Vector, rad: f64) -> Self {
+        Self(self.0.rotated(origin.0, DVec3::from_array(*axis.0), rad))
     }
 }
 //
