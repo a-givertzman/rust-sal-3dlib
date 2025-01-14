@@ -1,4 +1,5 @@
 use super::*;
+use glam::{f64::DQuat, DVec3};
 //
 //
 impl Vector {
@@ -21,6 +22,18 @@ impl Vector {
     /// Creates a vector from coordinates.
     pub fn new(x: f64, y: f64, z: f64) -> Self {
         Self([x, y, z].into())
+    }
+    ///
+    /// Rotates vector `rad` radians around `axis`.
+    pub fn rotated(self, axis: Self, rad: f64) -> Self {
+        let axis = DVec3::from_array(*axis.0).normalize();
+        let this = DVec3::from_array(*self.0);
+        Self(
+            DQuat::from_axis_angle(axis, rad)
+                .mul_vec3(this)
+                .to_array()
+                .into(),
+        )
     }
 }
 //
