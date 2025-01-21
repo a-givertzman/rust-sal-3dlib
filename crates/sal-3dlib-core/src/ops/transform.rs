@@ -7,12 +7,12 @@ pub trait Rotate<O, A> {
     /// - `origin` - rotation pivot,
     /// - `axis` - axis for rotation,
     /// - `rad` - angle in radians.
-    fn rotated(self, origin: O, axis: A, rad: f64) -> Self;
+    fn rotate(self, origin: O, axis: A, rad: f64) -> Self;
 }
 ///
 /// Moving in space.
 pub trait Translate<T> {
     ///
     /// Consumes `self` and returns a new translated instance moved to `dir`.
-    fn translated(self, dir: T) -> Self;
+    fn translate(self, dir: T) -> Self;
 }

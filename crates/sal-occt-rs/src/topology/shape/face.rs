@@ -36,14 +36,14 @@ impl TryFrom<&Wire> for Face {
 //
 //
 impl Rotate<Vertex, Vector> for Face {
-    fn rotated(self, origin: Vertex, axis: Vector, rad: f64) -> Self {
+    fn rotate(self, origin: Vertex, axis: Vector, rad: f64) -> Self {
         Self(self.0.rotated(origin.0, DVec3::from_array(*axis.0), rad))
     }
 }
 //
 //
 impl Translate<Vector> for Face {
-    fn translated(self, dir: Vector) -> Self {
+    fn translate(self, dir: Vector) -> Self {
         Self(self.0.translated(DVec3::from_array(*dir.0)))
     }
 }

@@ -25,7 +25,7 @@ impl Vector {
     }
     ///
     /// Rotates vector `rad` radians around `axis`.
-    pub fn rotated(self, axis: Self, rad: f64) -> Self {
+    pub fn rotate(self, axis: Self, rad: f64) -> Self {
         let axis = DVec3::from_array(*axis.0).normalize();
         let this = DVec3::from_array(*self.0);
         Self(

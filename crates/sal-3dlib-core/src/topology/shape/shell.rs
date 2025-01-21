@@ -26,10 +26,10 @@ where
     S: Rotate<V, A>,
     A: Into<Vector<N>>,
 {
-    fn rotated(self, origin: Vertex<N, V, T>, axis: A, angle: f64) -> Self {
+    fn rotate(self, origin: Vertex<N, V, T>, axis: A, angle: f64) -> Self {
         let origin = origin.inner;
         Self {
-            inner: self.inner.rotated(origin, axis, angle),
+            inner: self.inner.rotate(origin, axis, angle),
             attrs: self.attrs,
         }
     }
@@ -41,9 +41,9 @@ where
     S: Translate<D>,
     D: Into<Vector<N>>,
 {
-    fn translated(self, dir: D) -> Self {
+    fn translate(self, dir: D) -> Self {
         Self {
-            inner: self.inner.translated(dir),
+            inner: self.inner.translate(dir),
             attrs: self.attrs,
         }
     }

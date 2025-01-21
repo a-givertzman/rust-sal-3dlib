@@ -132,8 +132,8 @@ fn calc_volume_and_center_of_hull() {
         // and rotate on 6 degree around OX.
         Face::try_from(&polygon)
             .expect("created *plane*")
-            .translated(Vector::new(0.0, 0.0, delta_z))
-            .rotated(hull.center(), Vector::unit_x(), init_plane_rotation)
+            .translate(Vector::new(0.0, 0.0, delta_z))
+            .rotate(hull.center(), Vector::unit_x(), init_plane_rotation)
     };
     log::debug!("*plane* | elapsed: {:?}", time.elapsed());
     for (step, (volume, center)) in test_data.into_iter().enumerate() {
@@ -141,7 +141,7 @@ fn calc_volume_and_center_of_hull() {
         // the center returns value instantly
         let plane_center = plane.center();
         time = Instant::now();
-        plane = plane.rotated(plane_center, Vector::unit_x(), DEG_IN_RAD);
+        plane = plane.rotate(plane_center, Vector::unit_x(), DEG_IN_RAD);
         log::debug!("*plane*.rotated | elapsed: {:?}", time.elapsed());
         time = Instant::now();
         let bottom_part = hull.volume(&plane, vol_conf).expect("Ok(*bottom_part*)");
@@ -262,8 +262,8 @@ fn calc_volume_and_center_of_hull_parallel() {
         // and rotate on 6 degree around OX.
         Face::try_from(&polygon)
             .expect("created *plane*")
-            .translated(Vector::new(0.0, 0.0, delta_z))
-            .rotated(hull.center(), Vector::unit_x(), init_plane_rotation)
+            .translate(Vector::new(0.0, 0.0, delta_z))
+            .rotate(hull.center(), Vector::unit_x(), init_plane_rotation)
     };
     log::debug!("*plane* | elapsed: {:?}", time.elapsed());
     std::thread::scope(|scp| {
@@ -274,7 +274,7 @@ fn calc_volume_and_center_of_hull_parallel() {
                 let mut plane = plane.clone();
                 move || {
                     let mut time = Instant::now();
-                    plane = plane.rotated(
+                    plane = plane.rotate(
                         Vertex::new(center_point),
                         Vector::unit_x(),
                         deg as f64 * DEG_IN_RAD,
