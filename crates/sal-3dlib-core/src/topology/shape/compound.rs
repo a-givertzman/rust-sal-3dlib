@@ -1,5 +1,5 @@
 use super::*;
-use crate::{ops::AlgoMakerVolume, props::Center};
+use crate::{ops::boolean::volume::AlgoMakerVolume, props::Center};
 //
 //
 impl<const N: usize, C, T> From<(C, Attributes<T>)> for Compound<N, C, T> {

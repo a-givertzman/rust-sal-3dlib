@@ -1,6 +1,6 @@
 use super::*;
 use primitives::IntoShape;
-use sal_3dlib_core::ops::AlgoMakerVolume;
+use sal_3dlib_core::ops::boolean::volume::AlgoMakerVolume;
 use sal_3dlib_core::props::Center;
 use sal_3dlib_core::topology::compound::Solids;
 use sal_sync::services::entity::error::str_err::StrErr;

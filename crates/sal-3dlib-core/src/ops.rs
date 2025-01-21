@@ -12,20 +12,3 @@ pub trait Polygon<T> {
     where
         Self: Sized;
 }
-///
-/// Algorithm to volume together three sets of the objects.
-pub trait AlgoMakerVolume<A, B, C> {
-    type Error;
-    //
-    //
-    fn build<'a>(
-        a: impl IntoIterator<Item = &'a A>,
-        b: impl IntoIterator<Item = &'a B>,
-        c: impl IntoIterator<Item = &'a C>,
-    ) -> Result<Self, Self::Error>
-    where
-        Self: Sized,
-        A: 'a,
-        B: 'a,
-        C: 'a;
-}
