@@ -1,5 +1,5 @@
 use super::*;
-use crate::{ops::Solidify, props::Center};
+use crate::{ops::AlgoMakerVolume, props::Center};
 //
 //
 impl<const N: usize, C, T> From<(C, Attributes<T>)> for Compound<N, C, T> {
@@ -42,15 +42,15 @@ where
 }
 //
 //
-impl<const N: usize, C, E, F, L, D, T> Solidify<Face<N, F, T>, Shell<N, L, T>, Solid<N, D, T>>
-    for Compound<N, C, T>
+impl<const N: usize, C, E, F, L, D, T>
+    AlgoMakerVolume<Face<N, F, T>, Shell<N, L, T>, Solid<N, D, T>> for Compound<N, C, T>
 where
-    C: Solidify<F, L, D, Error = E>,
+    C: AlgoMakerVolume<F, L, D, Error = E>,
 {
     type Error = E;
     //
     //
-    fn solidify<'a>(
+    fn build<'a>(
         fs: impl IntoIterator<Item = &'a Face<N, F, T>>,
         ls: impl IntoIterator<Item = &'a Shell<N, L, T>>,
         ds: impl IntoIterator<Item = &'a Solid<N, D, T>>,
@@ -61,7 +61,7 @@ where
         Shell<N, L, T>: 'a,
         Solid<N, D, T>: 'a,
     {
-        C::solidify(
+        C::build(
             fs.into_iter().map(|face| &face.inner),
             ls.into_iter().map(|shell| &shell.inner),
             ds.into_iter().map(|solid| &solid.inner),

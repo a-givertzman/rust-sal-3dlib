@@ -14,11 +14,11 @@ pub trait Polygon<T> {
 }
 ///
 /// Algorithm to volume together three sets of the objects.
-pub trait Solidify<A, B, C> {
+pub trait AlgoMakerVolume<A, B, C> {
     type Error;
     //
     //
-    fn solidify<'a>(
+    fn build<'a>(
         a: impl IntoIterator<Item = &'a A>,
         b: impl IntoIterator<Item = &'a B>,
         c: impl IntoIterator<Item = &'a C>,

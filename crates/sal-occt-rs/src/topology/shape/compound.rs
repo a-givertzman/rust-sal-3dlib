@@ -1,6 +1,6 @@
 use super::*;
 use primitives::IntoShape;
-use sal_3dlib_core::ops::Solidify;
+use sal_3dlib_core::ops::AlgoMakerVolume;
 use sal_3dlib_core::props::Center;
 use sal_3dlib_core::topology::compound::Solids;
 use sal_sync::services::entity::error::str_err::StrErr;
@@ -17,11 +17,11 @@ impl Center for Compound {
 }
 //
 //
-impl Solidify<Face, Shell, Solid> for Compound {
+impl AlgoMakerVolume<Face, Shell, Solid> for Compound {
     type Error = StrErr;
     //
     //
-    fn solidify<'a>(
+    fn build<'a>(
         fs: impl IntoIterator<Item = &'a Face>,
         ls: impl IntoIterator<Item = &'a Shell>,
         ds: impl IntoIterator<Item = &'a Solid>,
