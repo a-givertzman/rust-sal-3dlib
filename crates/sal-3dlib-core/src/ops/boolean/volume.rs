@@ -21,6 +21,12 @@ pub struct VolumeConf {
 }
 ///
 /// Algorithm to volume together three sets of the objects.
+/// The Volume Maker algorithm has been designed for building
+/// the elementary volumes (solids) from a set of connected,
+/// intersecting, or nested shapes.  
+/// The algorithm can also be useful for splitting solids into parts,
+/// or constructing new solid(s) from set of intersecting or connected faces or shells.  
+/// The algorithm creates only closed solids.
 pub trait AlgoMakerVolume<A, B, C> {
     type Error;
     //
