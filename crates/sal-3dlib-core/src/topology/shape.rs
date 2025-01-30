@@ -44,12 +44,12 @@ pub struct Shell<const N: usize, S, T> {
 ///
 /// Part of the N-dimensional space bounded by shells.
 pub struct Solid<const N: usize, S, T> {
-    pub inner: S,
+    inner: S,
     attrs: Option<Attributes<T>>,
 }
 ///
 /// Group of any of main entities.
 pub struct Compound<const N: usize, C, T> {
-    pub inner: C,
+    inner: C,
     attrs: Option<Attributes<T>>,
 }
