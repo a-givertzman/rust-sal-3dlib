@@ -32,7 +32,7 @@ pub struct Wire<const N: usize, W, T> {
 ///
 /// Part of a surface (e. g. a plane in 2D geometry) bounded by a closed wire.
 pub struct Face<const N: usize, F, T> {
-    pub inner: F,
+    inner: F,
     attrs: Option<Attributes<T>>,
 }
 ///
