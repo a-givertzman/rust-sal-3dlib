@@ -1,22 +1,37 @@
-use super::*;
+//!
+//! Shell implementation in terms of OCCT.
+//!
+//! It provides the final object - [Shell] - and its related trait implementations.
+//
+use super::{face::OcctFace, solid::OcctSolid, vertex::OcctVertex};
 use crate::ops::boolean::volume::VolumeConf;
 use anyhow::Result;
-use sal_3dlib_core::{ops::boolean::volume::Volume, props::Center};
+use opencascade::primitives;
+use sal_3dlib_core::{ops::boolean::volume::Volume, props::Center, topology};
+///
+/// Collection of faces connected by some edges of their wire boundaries.
+///
+/// For internal use only. It provides low-level implementation for [Shell].
+#[derive(Clone)]
+pub struct OcctShell(pub(crate) primitives::Shell);
 //
 //
-impl Volume<Face, VolumeConf, Result<Solid>> for Shell {
-    fn volume(&self, face: &Face, _: VolumeConf) -> Result<Solid> {
-        Ok(Solid(self.0.volume(&face.0)?))
+impl Volume<OcctFace, VolumeConf, Result<OcctSolid>> for OcctShell {
+    fn volume(&self, face: &OcctFace, _: VolumeConf) -> Result<OcctSolid> {
+        Ok(OcctSolid(self.0.volume(&face.0)?))
     }
 }
 //
 //
-impl Center for Shell {
-    type Output = Vertex;
+impl Center for OcctShell {
+    type Output = OcctVertex;
     //
     //
     fn center(&self) -> Self::Output {
         let point = self.0.center_of_mass();
-        Vertex(primitives::Vertex::new(point))
+        OcctVertex(primitives::Vertex::new(point))
     }
 }
+///
+/// Collection of faces connected by some edges of their wire boundaries.
+pub type Shell<T> = topology::Shell<3, OcctShell, T>;

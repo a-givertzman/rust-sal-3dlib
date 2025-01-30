@@ -1,3 +1,4 @@
+//!
 //! Rotate and move objects.
 //
 /// Defines the rotation of the object.

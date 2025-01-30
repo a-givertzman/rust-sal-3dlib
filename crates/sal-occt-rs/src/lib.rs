@@ -1,60 +1,13 @@
-//! Implementation of [sal_3dlib_core] taking [opencascade] as the CAD kernel.
+//!
+//! Implementation of [sal_3dlib_core] taking [Open CASCADE Technology] library as the CAD kernel.
+//!
+//! This is implemented with use of high-level binding provided by [opencascade].
+//!
+//! [Open CASCADE Technology]: https://dev.opencascade.org/doc/overview/html/index.html
 //
 pub mod fs;
 pub mod gmath;
 pub mod ops;
 #[cfg(test)]
 mod tests;
-mod topology;
-pub mod export {
-    ///
-    /// Implementation of [sal_3dlib_core::topology].
-    pub mod topology {
-        ///
-        /// Implementation of [sal_3dlib_core::topology].
-        pub mod shape {
-            pub mod compound {
-                pub use super::topology::compound::Solids;
-            }
-            use sal_3dlib_core::topology;
-            ///
-            /// See [sal_3dlib_core::topology::Vertex] for details.
-            pub type Vertex<T> = topology::Vertex<3, super::Vertex, T>;
-            ///
-            /// See [sal_3dlib_core::topology::Edge] for details.
-            pub type Edge<T> = topology::Edge<3, super::Edge, T>;
-            ///
-            /// See [sal_3dlib_core::topology::Wire] for details.
-            pub type Wire<T> = topology::Wire<3, super::Wire, T>;
-            ///
-            /// See [sal_3dlib_core::topology::Face] for details.
-            pub type Face<T> = topology::Face<3, super::Face, T>;
-            ///
-            /// See [sal_3dlib_core::topology::Shell] for details.
-            pub type Shell<T> = topology::Shell<3, super::Shell, T>;
-            ///
-            /// See [sal_3dlib_core::topology::Solid] for details.
-            pub type Solid<T> = topology::Solid<3, super::Solid, T>;
-            ///
-            /// See [sal_3dlib_core::topology::Compound] for details.
-            pub type Compound<T> = topology::Compound<3, super::Compound, T>;
-        }
-        //
-        use crate::topology::shape::*;
-        use sal_3dlib_core::topology;
-        ///
-        /// See [sal_3dlib_core::topology::Shape] for details.
-        pub type Shape<T> = topology::Shape<3, Vertex, Edge, Wire, Face, Shell, Solid, Compound, T>;
-    }
-}
-///
-/// Re-export of triats and structures (all in one) for easy access.
-pub mod prelude {
-    use super::*;
-    pub use export::topology::{
-        shape::{compound::*, *},
-        *,
-    };
-    pub use gmath::*;
-    pub use ops::boolean::{volume::*, *};
-}
+pub mod topology;

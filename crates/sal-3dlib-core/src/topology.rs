@@ -1,17 +1,32 @@
-//! Defines a topology in N-dimensional space.
+//!
+//! Topology in N-dimensional space.
 //
-mod shape;
+pub(crate) mod shape;
 //
 pub use shape::*;
 ///
-/// Abstract topological structure describes general entity.
+/// Abstract topological data structure describes a basic entity.
 pub enum Shape<const N: usize, V, E, W, F, L, D, C, T> {
+    ///
+    /// Zero-dimensional shape corresponding to a point in geometry.
     Vertex(Vertex<N, V, T>),
+    ///
+    /// Shape corresponding to a curve, and bound by a vertex at each extremity.
     Edge(Edge<N, E, T>),
+    ///
+    /// Sequence of edges connected by their vertices.
     Wire(Wire<N, W, T>),
+    ///
+    /// Part of a surface bounded by a closed wire.
     Face(Face<N, F, T>),
+    ///
+    /// Collection of faces connected by some edges of their wire boundaries.
     Shell(Shell<N, L, T>),
+    ///
+    /// Part of space limited by shells.
     Solid(Solid<N, D, T>),
+    ///
+    /// Group of any type of topological objects.
     Compound(Compound<N, C, T>),
 }
 //

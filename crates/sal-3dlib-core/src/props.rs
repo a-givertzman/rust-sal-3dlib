@@ -1,3 +1,4 @@
+//!
 //! Properties associated with the object.
 //!
 //! Note that the object does not necessarily have to implement all of them.
@@ -26,6 +27,8 @@ pub trait Volume {
 ///
 /// Object that has the center.
 pub trait Center {
+    //
+    //
     type Output;
     ///
     /// Returns the center of the object.
@@ -45,7 +48,7 @@ pub trait Metadata<T> {
     /// Returns a shared reference to the object attributes.
     fn attrs(&self) -> Option<&Attributes<T>>;
     ///
-    /// Returns a shared reference to the object attributes.
+    /// Returns the exlusive reference to the object attributes.
     fn attrs_mut(&mut self) -> Option<&mut Attributes<T>>;
 }
 ///

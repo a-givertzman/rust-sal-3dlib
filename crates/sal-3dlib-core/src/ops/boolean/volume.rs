@@ -1,44 +1,45 @@
+//!
 //! Build an elementary volume from a set of objects.
 //
 use super::*;
 ///
 /// Volume creation algorithm.
-pub trait Volume<Rhs, C, O>
+pub trait Volume<Rhs, Conf, Output>
 where
-    VolumeConf: From<C>,
+    VolumeConf: From<Conf>,
 {
     ///
-    /// Returns the volume of `&self` and `&rhs`. It's configured using `conf`.
-    fn volume(&self, rhs: &Rhs, conf: C) -> O;
+    /// Returns the volume of `&self` and `&rhs`.
+    ///
+    /// Use `conf` to configure the operation.
+    fn volume(&self, rhs: &Rhs, conf: Conf) -> Output;
 }
 ///
-/// Configuration used to perform [Volume].
+/// Set of options, which allow speeding-up [Volume] operation and [AlgoMakerVolume] algorithm.
 pub struct VolumeConf {
     ///
-    /// [Volume] is based on [crate::ops::boolean] operations,
-    /// so all fields of [OpConf] also make sense.
+    /// Set of options, which allow speeding-up [Fuse], [Intersect] and [Cut] operations
+    ///
+    /// This configuration based on the configuration of [super::OpConf],
+    /// thus all its options are inherited and also available.
     pub op_conf: OpConf,
 }
 ///
 /// Algorithm to volume together three sets of the objects.
-/// The Volume Maker algorithm has been designed for building
-/// the elementary volumes (solids) from a set of connected,
-/// intersecting, or nested shapes.  
-/// The algorithm can also be useful for splitting solids into parts,
-/// or constructing new solid(s) from set of intersecting or connected faces or shells.  
-/// The algorithm creates only closed solids.
-pub trait AlgoMakerVolume<A, B, C> {
+pub trait AlgoMakerVolume<T1, T2, T3> {
+    //
+    //
     type Error;
     //
-    //
+    // Performs the algorithm and returns its output result.
     fn build<'a>(
-        a: impl IntoIterator<Item = &'a A>,
-        b: impl IntoIterator<Item = &'a B>,
-        c: impl IntoIterator<Item = &'a C>,
+        set1: impl IntoIterator<Item = &'a T1>,
+        set2: impl IntoIterator<Item = &'a T2>,
+        set3: impl IntoIterator<Item = &'a T3>,
     ) -> Result<Self, Self::Error>
     where
         Self: Sized,
-        A: 'a,
-        B: 'a,
-        C: 'a;
+        T1: 'a,
+        T2: 'a,
+        T3: 'a;
 }

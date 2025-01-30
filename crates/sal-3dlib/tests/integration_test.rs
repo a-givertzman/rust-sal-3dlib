@@ -1,7 +1,7 @@
 use debugging::session::debug_session::{Backtrace, DebugSession, LogLevel};
 use sal_3dlib::{
     fs::Reader,
-    gmath::Vector,
+    gmath::vector::Vector,
     ops::{
         boolean::{
             volume::{Volume, VolumeConf},
@@ -12,8 +12,8 @@ use sal_3dlib::{
     },
     props::{Center, Metadata, Volume as VolumeProp},
     topology::{
-        shape::{Face, Vertex, Wire},
-        Shape,
+        shape::Shape,
+        shape::{face::Face, vertex::Vertex, wire::Wire},
     },
 };
 use std::{

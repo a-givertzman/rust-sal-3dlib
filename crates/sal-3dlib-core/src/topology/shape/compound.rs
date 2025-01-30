@@ -50,10 +50,6 @@ where
     type Error = E;
     ///
     /// Volumes together three sets of the objects.
-    ///
-    /// The current implementation uses OCCT [`Volume Maker Algorithm`].
-    ///
-    /// [`Volume Maker Algorithm`]: https://dev.opencascade.org/doc/overview/html/specification__boolean_operations.html#specification__boolean_10b
     fn build<'a>(
         fs: impl IntoIterator<Item = &'a Face<N, F, T>>,
         ls: impl IntoIterator<Item = &'a Shell<N, L, T>>,

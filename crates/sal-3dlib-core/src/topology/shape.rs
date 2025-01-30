@@ -32,7 +32,7 @@ pub struct Wire<const N: usize, W, T> {
 ///
 /// Part of a surface (e. g. a plane in 2D geometry) bounded by a closed wire.
 pub struct Face<const N: usize, F, T> {
-    inner: F,
+    pub inner: F,
     attrs: Option<Attributes<T>>,
 }
 ///
@@ -44,12 +44,12 @@ pub struct Shell<const N: usize, S, T> {
 ///
 /// Part of the N-dimensional space bounded by shells.
 pub struct Solid<const N: usize, S, T> {
-    inner: S,
+    pub inner: S,
     attrs: Option<Attributes<T>>,
 }
 ///
 /// Group of any of main entities.
 pub struct Compound<const N: usize, C, T> {
-    inner: C,
+    pub inner: C,
     attrs: Option<Attributes<T>>,
 }
