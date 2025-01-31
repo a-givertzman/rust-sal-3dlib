@@ -5,8 +5,12 @@ use sal_3dlib_core::gmath;
 ///
 /// # Examples
 /// ```no_run
+/// # mod sal_3dlib {
+/// #     pub use sal_occt_rs::*;
+/// # };
+/// # //
 /// use core::f64::consts::FRAC_PI_2;
-/// use sal_occt_rs::gmath::vector::Vector;
+/// use sal_3dlib::gmath::vector::Vector;
 /// //
 /// // create a new oX vector
 /// let unit_x = Vector::new(1.0, 0.0, 0.0);
@@ -54,8 +58,12 @@ impl Vector {
     /// # Examples
     /// Create oZ by rotating oX 90 degrees around oY:
     /// ```no_run
+    /// # mod sal_3dlib {
+    /// #     pub use sal_occt_rs::*;
+    /// # };
+    /// # //
     /// use core::f64::consts::FRAC_PI_2;
-    /// use sal_occt_rs::gmath::vector::Vector;
+    /// use sal_3dlib::gmath::vector::Vector;
     /// //
     /// let unit_x = Vector::unit_x();
     /// let unit_z = unit_x.rotate(Vector::unit_y(), -FRAC_PI_2);

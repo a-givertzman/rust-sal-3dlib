@@ -1,6 +1,6 @@
 //!
 //! Algorithms to create new objects from the combinations
-//! of two groups of objects in 3-dimentional space.
+//! of two groups of objects in 3-dimensional space.
 //
 pub mod volume;
 //

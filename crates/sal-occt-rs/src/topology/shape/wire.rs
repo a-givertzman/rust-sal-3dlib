@@ -45,12 +45,18 @@ pub trait Polygon<T>: ops::Polygon<Vertex<T>> {
     /// # Examples
     /// Create a sqaure plane from four vertices:
     /// ```no_run
-    /// use sal_occt_rs::topology::shape::{
-    ///     face::Face,
-    ///     vertex::Vertex,
-    ///     wire::{Polygon, Wire},
+    /// # mod sal_3dlib {
+    /// #     pub use sal_occt_rs::*;
+    /// # };
+    /// # //
+    /// use sal_3dlib::{
+    ///     gmath::point::Point,
+    ///     topology::shape::{
+    ///         face::Face,
+    ///         vertex::Vertex,
+    ///         wire::{Polygon, Wire},
+    ///     },
     /// };
-    /// use sal_occt_rs::gmath::point::Point;
     /// //
     /// // initialize corners
     /// let a = Vertex::new(*Point::from([0.0, 0.0, 0.0]));

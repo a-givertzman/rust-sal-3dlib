@@ -74,7 +74,7 @@ impl volume::AlgoMakerVolume<OcctFace, OcctShell, OcctSolid> for OcctCompound {
 /// Group of any type of topological objects.
 pub type Compound<T> = compound::Compound<3, OcctCompound, T>;
 ///
-/// Algorithm to volume together three sets of the objects in 3-dementional space.
+/// Algorithm to volume together three sets of the objects in 3-demensional space.
 ///
 /// The Volume Maker algorithm has been designed for building the elementary volumes (solids)
 /// from a set of connected, intersecting, or nested shapes (faces, shells, and solids).  
@@ -92,7 +92,11 @@ pub trait AlgoMakerVolume<T>: volume::AlgoMakerVolume<Face<T>, Shell<T>, Solid<T
     /// # Examples
     /// Consider the method that creates a cube from the six planes:
     /// ```no_run
-    /// use sal_occt_rs::topology::shape::{
+    /// # mod sal_3dlib {
+    /// #     pub use sal_occt_rs::*;
+    /// # };
+    /// # //
+    /// use sal_3dlib::topology::shape::{
     ///     face::Face,
     ///     compound::{Compound, AlgoMakerVolume}
     /// };
@@ -108,7 +112,11 @@ pub trait AlgoMakerVolume<T>: volume::AlgoMakerVolume<Face<T>, Shell<T>, Solid<T
     /// For given [Solid], this algorithm allows to get elements splitted by a [Face]
     /// (or devided into top and bottom parts) relative to the splitter face:
     /// ```no_run
-    /// use sal_occt_rs::topology::shape::{
+    /// # mod sal_3dlib {
+    /// #     pub use sal_occt_rs::*;
+    /// # };
+    /// # //
+    /// use sal_3dlib::topology::shape::{
     ///     face::Face,
     ///     compound::{Compound, AlgoMakerVolume},
     ///     solid::Solid,
@@ -123,7 +131,11 @@ pub trait AlgoMakerVolume<T>: volume::AlgoMakerVolume<Face<T>, Shell<T>, Solid<T
     ///
     /// But if [Face] is too simple, a more complex object like [Shell] may need to be used for splitting:
     /// ```no_run
-    /// use sal_occt_rs::topology::shape::{
+    /// # mod sal_3dlib {
+    /// #     pub use sal_occt_rs::*;
+    /// # };
+    /// # //
+    /// use sal_3dlib::topology::shape::{
     ///     compound::{Compound, AlgoMakerVolume},
     ///     shell::Shell,
     ///     solid::Solid,

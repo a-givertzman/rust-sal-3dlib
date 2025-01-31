@@ -5,8 +5,14 @@ use sal_3dlib_core::gmath;
 ///
 /// # Examples
 /// ```no_run
-/// use sal_occt_rs::topology::shape::vertex::Vertex;
-/// use sal_occt_rs::gmath::point::Point;
+/// # mod sal_3dlib {
+/// #     pub use sal_occt_rs::*;
+/// # };
+/// # //
+/// use sal_3dlib::{
+///     gmath::point::Point,
+///     topology::shape::vertex::Vertex,
+/// };
 /// //
 /// // create the origin point
 /// let o = Point::from([0.0, 0.0, 0.0]);

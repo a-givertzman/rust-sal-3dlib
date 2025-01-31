@@ -1,5 +1,5 @@
 //!
-//! Operations for creating, transforming, and modifying objects in 3-dimentional space.
+//! Operations for creating, transforming, and modifying objects in 3-dimensional space.
 //
 pub mod boolean;
 //
