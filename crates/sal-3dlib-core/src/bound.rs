@@ -1,6 +1,7 @@
+//!
 //! Defining the [bounding box](https://en.wikipedia.org/wiki/Minimum_bounding_box).
 ///
-/// Create a bounding box.
+/// Object with the bounding box.
 pub trait Bound<T> {
     ///
     /// Creates a new instance.

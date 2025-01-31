@@ -7,7 +7,7 @@ use super::{face::OcctFace, solid::OcctSolid, vertex::OcctVertex};
 use crate::ops::boolean::volume::VolumeConf;
 use anyhow::Result;
 use opencascade::primitives;
-use sal_3dlib_core::{ops::boolean::volume::Volume, props::Center, topology};
+use sal_3dlib_core::{ops::boolean::volume::Volume, props::Center, topology::shape::shell};
 ///
 /// Collection of faces connected by some edges of their wire boundaries.
 ///
@@ -34,4 +34,4 @@ impl Center for OcctShell {
 }
 ///
 /// Collection of faces connected by some edges of their wire boundaries.
-pub type Shell<T> = topology::Shell<3, OcctShell, T>;
+pub type Shell<T> = shell::Shell<3, OcctShell, T>;

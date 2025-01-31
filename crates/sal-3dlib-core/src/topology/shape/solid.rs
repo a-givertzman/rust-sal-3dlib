@@ -1,8 +1,19 @@
-use super::*;
+use super::{compound::Compound, face::Face, vertex::Vertex};
 use crate::{
     ops::boolean::{Intersect, OpConf},
-    props::{Center, Volume},
+    props::{Attributes, Center, Volume},
 };
+///
+/// Part of the N-dimensional space bounded by shells.
+///
+/// It depends on:
+/// - the space dimension - `N`,
+/// - the inner implementation specific to the kernel - `S`,
+/// - an optional attribute.
+pub struct Solid<const N: usize, S, T> {
+    pub(super) inner: S,
+    pub(super) attrs: Option<Attributes<T>>,
+}
 //
 //
 impl<const N: usize, S: Volume, T> Volume for Solid<N, S, T> {
@@ -28,6 +39,8 @@ where
 //
 //
 impl<const N: usize, S, T> From<(S, Attributes<T>)> for Solid<N, S, T> {
+    ///
+    /// Creates an instance from its inner representation and given attribute.
     fn from((solid, attrs): (S, Attributes<T>)) -> Self {
         Self {
             inner: solid,

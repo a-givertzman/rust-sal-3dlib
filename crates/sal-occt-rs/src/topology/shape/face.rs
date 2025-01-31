@@ -10,7 +10,7 @@ use opencascade::primitives;
 use sal_3dlib_core::{
     ops::transform::{Rotate, Translate},
     props::{Area, Center},
-    topology,
+    topology::shape::face,
 };
 ///
 /// Part of a surface bounded by a closed wire.
@@ -62,4 +62,4 @@ impl Translate<Vector> for OcctFace {
 }
 ///
 /// Part of a surface bounded by a closed wire.
-pub type Face<T> = topology::Face<3, OcctFace, T>;
+pub type Face<T> = face::Face<3, OcctFace, T>;

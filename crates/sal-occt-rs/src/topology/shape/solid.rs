@@ -9,7 +9,7 @@ use opencascade::primitives::{self, IntoShape};
 use sal_3dlib_core::{
     ops::boolean::Intersect,
     props::{Center, Volume},
-    topology,
+    topology::shape::solid,
 };
 ///
 /// Part of space limited by shells.
@@ -46,4 +46,4 @@ impl Center for OcctSolid {
 }
 ///
 /// Part of space limited by shells.
-pub type Solid<T> = topology::Solid<3, OcctSolid, T>;
+pub type Solid<T> = solid::Solid<3, OcctSolid, T>;

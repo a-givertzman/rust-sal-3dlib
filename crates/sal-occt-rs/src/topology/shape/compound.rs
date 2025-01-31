@@ -10,8 +10,8 @@ use super::{
     vertex::OcctVertex,
 };
 use opencascade::primitives::{self, IntoShape};
-pub use sal_3dlib_core::topology::compound::Solids;
-use sal_3dlib_core::{ops::boolean::volume, props::Center, topology};
+pub use sal_3dlib_core::topology::shape::compound::Solids;
+use sal_3dlib_core::{ops::boolean::volume, props::Center, topology::shape::compound};
 use sal_sync::services::entity::error::str_err::StrErr;
 ///
 /// Group of any type of topological objects.
@@ -72,7 +72,7 @@ impl volume::AlgoMakerVolume<OcctFace, OcctShell, OcctSolid> for OcctCompound {
 }
 ///
 /// Group of any type of topological objects.
-pub type Compound<T> = topology::Compound<3, OcctCompound, T>;
+pub type Compound<T> = compound::Compound<3, OcctCompound, T>;
 ///
 /// Algorithm to volume together three sets of the objects in 3-dementional space.
 ///

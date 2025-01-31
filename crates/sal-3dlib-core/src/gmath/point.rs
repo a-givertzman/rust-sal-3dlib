@@ -1,4 +1,4 @@
-use super::*;
+use super::Point;
 use std::ops::Deref;
 //
 //

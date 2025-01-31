@@ -6,7 +6,7 @@
 use crate::gmath::point::Point;
 use glam::DVec3;
 use opencascade::primitives;
-use sal_3dlib_core::{props::Dist, topology};
+use sal_3dlib_core::{props::Dist, topology::shape::vertex};
 ///
 /// Zero-dimensional shape corresponding to a point in geometry.
 ///
@@ -29,4 +29,4 @@ impl Dist<OcctVertex> for OcctVertex {
 }
 ///
 /// Zero-dimensional shape corresponding to a point in geometry.
-pub type Vertex<T> = topology::Vertex<3, OcctVertex, T>;
+pub type Vertex<T> = vertex::Vertex<3, OcctVertex, T>;

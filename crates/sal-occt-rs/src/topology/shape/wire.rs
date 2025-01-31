@@ -7,7 +7,7 @@ use super::vertex::{OcctVertex, Vertex};
 use crate::gmath::point::Point;
 use glam::DVec3;
 use opencascade::primitives;
-use sal_3dlib_core::{ops, topology};
+use sal_3dlib_core::{ops, topology::shape::wire};
 ///
 /// Sequence of edges connected by their vertices.
 ///
@@ -20,8 +20,8 @@ impl ops::Polygon<OcctVertex> for OcctWire {
     type Error = opencascade::Error;
     //
     //
-    fn polygon(vxs: impl IntoIterator<Item = OcctVertex>, _: bool) -> Result<Self, Self::Error> {
-        let points = vxs.into_iter().map(|v| {
+    fn polygon(vs: impl IntoIterator<Item = OcctVertex>, _: bool) -> Result<Self, Self::Error> {
+        let points = vs.into_iter().map(|v| {
             let point = Point::from(&v);
             DVec3::from_array(*point)
         });
@@ -30,7 +30,7 @@ impl ops::Polygon<OcctVertex> for OcctWire {
 }
 ///
 /// Sequence of edges connected by their vertices.
-pub type Wire<T> = topology::Wire<3, OcctWire, T>;
+pub type Wire<T> = wire::Wire<3, OcctWire, T>;
 ///
 /// Algorithm to build polygonal wires from vertices or points.
 pub trait Polygon<T>: ops::Polygon<Vertex<T>> {

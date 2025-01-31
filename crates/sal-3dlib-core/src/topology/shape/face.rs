@@ -1,9 +1,20 @@
-use super::*;
+use super::{vertex::Vertex, wire::Wire};
 use crate::{
     gmath::Vector,
     ops::transform::{Rotate, Translate},
-    props::{Area, Center},
+    props::{Area, Attributes, Center},
 };
+///
+/// Part of a surface bounded by a closed wire.
+///
+/// It depends on:
+/// - the space dimension - `N`,
+/// - the inner implementation specific to the kernel - `F`,
+/// - an optional attribute.
+pub struct Face<const N: usize, F, T> {
+    pub(super) inner: F,
+    pub(super) attrs: Option<Attributes<T>>,
+}
 //
 //
 impl<const N: usize, F, V, T> Center for Face<N, F, T>
@@ -75,6 +86,8 @@ where
 //
 //
 impl<const N: usize, F, T> From<(F, Attributes<T>)> for Face<N, F, T> {
+    ///
+    /// Creates an instance from its inner representation and given attribute.
     fn from((face, attrs): (F, Attributes<T>)) -> Self {
         Self {
             inner: face,

@@ -27,8 +27,6 @@ pub trait Volume {
 ///
 /// Object that has the center.
 pub trait Center {
-    //
-    //
     type Output;
     ///
     /// Returns the center of the object.
@@ -38,8 +36,8 @@ pub trait Center {
 /// Algorithm for calculating the distance.
 pub trait Dist<T> {
     ///
-    /// Returns the distance between `&self` and `&t`.
-    fn dist(&self, t: &T) -> f64;
+    /// Returns the distance between `&self` and `&other`.
+    fn dist(&self, ohter: &T) -> f64;
 }
 ///
 /// Manages user-defined metadata.

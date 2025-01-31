@@ -1,8 +1,24 @@
-use super::*;
-use crate::{ops::boolean::volume::AlgoMakerVolume, props::Center};
+use super::{face::Face, shell::Shell, solid::Solid, vertex::Vertex};
+use crate::{
+    ops::boolean::volume::AlgoMakerVolume,
+    props::{Attributes, Center},
+};
+///
+/// Group of any of main entities.
+///
+/// It depends on:
+/// - the space dimension - `N`,
+/// - the inner implementation specific to the kernel - `C`,
+/// - an optional attribute.
+pub struct Compound<const N: usize, C, T> {
+    pub(super) inner: C,
+    pub(super) attrs: Option<Attributes<T>>,
+}
 //
 //
 impl<const N: usize, C, T> From<(C, Attributes<T>)> for Compound<N, C, T> {
+    ///
+    /// Creates an instance from its inner representation and given attribute.
     fn from((compound, attrs): (C, Attributes<T>)) -> Self {
         Self {
             inner: compound,
@@ -48,8 +64,8 @@ where
     C: AlgoMakerVolume<F, L, D, Error = E>,
 {
     type Error = E;
-    ///
-    /// Volumes together three sets of the objects.
+    //
+    //
     fn build<'a>(
         fs: impl IntoIterator<Item = &'a Face<N, F, T>>,
         ls: impl IntoIterator<Item = &'a Shell<N, L, T>>,
@@ -76,7 +92,7 @@ where
 /// Object, which can be represented as solids.
 pub trait Solids<T> {
     ///
-    /// Returns iterator over solids.
+    /// Returns the iterator over object solids.
     fn solids(&self) -> impl IntoIterator<Item = T>;
 }
 //
