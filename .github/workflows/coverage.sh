@@ -17,11 +17,23 @@ NC='\033[0m' # No Color
 export RUSTFLAGS='-Cinstrument-coverage'
 export LLVM_PROFILE_FILE='target/coverage/%p-%m.profraw'
 
+rm -rf ./crates/sal-3dlib/target/coverage
+rm -rf ./crates/sal-3dlib-core/target/coverage
+rm -rf ./crates/sal-occt-rs/target/coverage
 rm -rf ./target/coverage
 
 cargo test --release --no-fail-fast 2>/dev/null
 
-grcov target/coverage -s . --binary-path target/release -o target/coverage --keep-only 'src/*' --output-types html,covdir --ignore 'src/tests/*'
+grcov \
+  --source-dir . \
+  --binary-path target/release \
+  --output-path target/coverage \
+  --output-types html,covdir \
+  --keep-only 'crates/*/src/*' \
+  --ignore 'crates/*/tests/*' \
+  crates/sal-3dlib/target/coverage \
+  crates/sal-3dlib-core/target/coverage \
+  crates/sal-occt-rs/target/coverage
 
 ############ REPORT ############
 
@@ -48,7 +60,7 @@ while IFS= read -r line; do
         echo -e "${RED}$(printf %3.2f $percent)${NC} '$path'"
         passed=false
     fi
-    if [[ $path == 'src' ]]; then
+    if [[ $path == 'crates' ]]; then
         totalCoverage=$percent
     fi
 done <<< "$lines"

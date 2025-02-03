@@ -1,4 +1,6 @@
+//!
 //! Abstact definition of objects and operations over the CAD kernel.
+//!
 //! It is assumed that the kernel is universal, but it implements all the necessary traits.
 //
 pub mod bound;

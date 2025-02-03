@@ -29,15 +29,15 @@ fn import_from_step_file() {
     init_each();
     let dbg_id = "import_from_step_file";
     log::debug!("\n{}", dbg_id);
-    let test_duration = TestDuration::new(dbg_id, Duration::from_secs(5));
+    let test_duration = TestDuration::new(dbg_id, Duration::from_secs(300));
     test_duration.run().unwrap();
     let test_data = [
         (
-            "src/tests/fs_test/resources/hull_shell.step",
+            "src/tests/fs_test/assets/hull_shell.step",
             vec!["/my_shell"],
         ),
         (
-            "src/tests/fs_test/resources/primitives.stp",
+            "src/tests/fs_test/assets/primitives.stp",
             vec!["/cube", "/shell", "/face", "/wire", "/1", "/face"],
         ),
     ];

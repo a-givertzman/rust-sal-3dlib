@@ -1,4 +1,4 @@
-use super::*;
+use super::Vector;
 use std::ops::Deref;
 //
 //

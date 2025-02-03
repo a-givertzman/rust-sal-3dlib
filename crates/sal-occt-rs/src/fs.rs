@@ -1,11 +1,21 @@
-//! Basic operations to read from and write to file.
+//!
+//! Basic operations to read from and write to files.
 //
-use crate::{prelude, topology::shape};
+use crate::topology::shape::{
+    compound::{Compound, OcctCompound},
+    edge::{Edge, OcctEdge},
+    face::{Face, OcctFace},
+    shell::{OcctShell, Shell},
+    solid::{OcctSolid, Solid},
+    vertex::{OcctVertex, Vertex},
+    wire::{OcctWire, Wire},
+    Shape,
+};
 use opencascade::primitives::{self, ShapeType};
 use sal_3dlib_core::props::Attributes;
 use std::path::Path;
 ///
-/// Reader of various file format.
+/// Reader of various file formats.
 pub struct Reader {
     nodes: Vec<(String, primitives::Shape)>,
 }
@@ -13,64 +23,64 @@ pub struct Reader {
 //
 impl Reader {
     ///
-    /// Reading STEP file.
+    /// Reads the STEP file.
     pub fn read_step(filename: impl AsRef<Path>) -> Result<Self, primitives::ReadSTEPError> {
         primitives::read_step(filename).map(|nodes| Self { nodes })
     }
     ///
-    /// Extract read buffer into the vector.
-    pub fn into_vec<T>(self) -> anyhow::Result<Vec<(String, prelude::Shape<Option<T>>)>> {
+    /// Extracts read buffer into the vector.
+    pub fn into_vec<T>(self) -> anyhow::Result<Vec<(String, Shape<Option<T>>)>> {
         let mut elmnts = Vec::with_capacity(self.nodes.len());
-        for (key, s) in self.nodes {
-            let shape = match s.shape_type() {
+        for (key, shape) in self.nodes {
+            let shape = match shape.shape_type() {
                 ShapeType::Vertex => {
-                    let cad_vertex = primitives::Vertex::try_from(&s)?;
-                    let local_vertex = shape::Vertex(cad_vertex);
+                    let cad_vertex = primitives::Vertex::try_from(&shape)?;
+                    let occt_vertex = OcctVertex(cad_vertex);
                     let attrs = Attributes::new(key.clone(), None);
-                    let export_vertex = prelude::Vertex::from((local_vertex, attrs));
-                    prelude::Shape::Vertex(export_vertex)
+                    let vertex = Vertex::from((occt_vertex, attrs));
+                    Shape::Vertex(vertex)
                 }
                 ShapeType::Edge => {
-                    let cad_edge = primitives::Edge::try_from(&s)?;
-                    let local_edge = shape::Edge(cad_edge);
+                    let cad_edge = primitives::Edge::try_from(&shape)?;
+                    let occt_edge = OcctEdge(cad_edge);
                     let attrs = Attributes::new(key.clone(), None);
-                    let export_edge = prelude::Edge::from((local_edge, attrs));
-                    prelude::Shape::Edge(export_edge)
+                    let edge = Edge::from((occt_edge, attrs));
+                    Shape::Edge(edge)
                 }
                 ShapeType::Wire => {
-                    let cad_wire = primitives::Wire::try_from(&s)?;
-                    let local_wire = shape::Wire(cad_wire);
+                    let cad_wire = primitives::Wire::try_from(&shape)?;
+                    let occt_wire = OcctWire(cad_wire);
                     let attrs = Attributes::new(key.clone(), None);
-                    let export_wire = prelude::Wire::from((local_wire, attrs));
-                    prelude::Shape::Wire(export_wire)
+                    let wire = Wire::from((occt_wire, attrs));
+                    Shape::Wire(wire)
                 }
                 ShapeType::Face => {
-                    let cad_face = primitives::Face::try_from(&s)?;
-                    let local_face = shape::Face(cad_face);
+                    let cad_face = primitives::Face::try_from(&shape)?;
+                    let occt_face = OcctFace(cad_face);
                     let attrs = Attributes::new(key.clone(), None);
-                    let export_face = prelude::Face::from((local_face, attrs));
-                    prelude::Shape::Face(export_face)
+                    let face = Face::from((occt_face, attrs));
+                    Shape::Face(face)
                 }
                 ShapeType::Shell => {
-                    let cad_shell = primitives::Shell::try_from(&s)?;
-                    let local_shell = shape::Shell(cad_shell);
+                    let cad_shell = primitives::Shell::try_from(&shape)?;
+                    let occt_shell = OcctShell(cad_shell);
                     let attrs = Attributes::new(key.clone(), None);
-                    let export_shell = prelude::Shell::from((local_shell, attrs));
-                    prelude::Shape::Shell(export_shell)
+                    let shell = Shell::from((occt_shell, attrs));
+                    Shape::Shell(shell)
                 }
                 ShapeType::Solid => {
-                    let cad_solid = primitives::Solid::try_from(&s)?;
-                    let local_solid = shape::Solid(cad_solid);
+                    let cad_solid = primitives::Solid::try_from(&shape)?;
+                    let occt_solid = OcctSolid(cad_solid);
                     let attrs = Attributes::new(key.clone(), None);
-                    let export_solid = prelude::Solid::from((local_solid, attrs));
-                    prelude::Shape::Solid(export_solid)
+                    let solid = Solid::from((occt_solid, attrs));
+                    Shape::Solid(solid)
                 }
                 ShapeType::Compound => {
-                    let cad_compound = primitives::Compound::try_from(&s)?;
-                    let local_compound = shape::Compound(cad_compound);
+                    let cad_compound = primitives::Compound::try_from(&shape)?;
+                    let occt_compound = OcctCompound(cad_compound);
                     let attrs = Attributes::new(key.clone(), None);
-                    let export_compound = prelude::Compound::from((local_compound, attrs));
-                    prelude::Shape::Compound(export_compound)
+                    let compound = Compound::from((occt_compound, attrs));
+                    Shape::Compound(compound)
                 }
                 ShapeType::Shape => anyhow::bail!("Expected a basic topology type, but got Shape"),
                 ShapeType::CompoundSolid => anyhow::bail!("CompoundSolid is not supported yet"),

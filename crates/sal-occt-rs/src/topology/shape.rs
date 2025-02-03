@@ -1,35 +1,29 @@
-//! Inner structures used for [sal_3dlib_core::topology].
+//!
+//! Shape implementation in terms of [OCCT].
+//!
+//! It provides the final object - [Shape] - and its related trait implementations.
+//!
+//! [OCCT]: https://dev.opencascade.org/doc/overview/html/occt_user_guides__modeling_data.html#occt_modat_5
 //
-#![allow(dead_code)]
+pub mod compound;
+pub mod edge;
+pub mod face;
+pub mod shell;
+pub mod solid;
+pub mod vertex;
+pub mod wire;
 //
-mod compound;
-mod face;
-mod shell;
-mod solid;
-mod vertex;
-mod wire;
-//
-use opencascade::primitives;
+use sal_3dlib_core::topology::shape;
 ///
-/// Implementation of [sal_3dlib_core::topology::Vertex].
-pub struct Vertex(pub(crate) primitives::Vertex);
-///
-/// Implementation of [sal_3dlib_core::topology::Edge].
-pub struct Edge(pub(crate) primitives::Edge);
-///
-/// Implementation of [sal_3dlib_core::topology::Wire].
-pub struct Wire(pub(crate) primitives::Wire);
-///
-/// Implementation of [sal_3dlib_core::topology::Face].
-#[derive(Clone)]
-pub struct Face(pub(crate) primitives::Face);
-///
-/// Implementation of [sal_3dlib_core::topology::Shell].
-#[derive(Clone)]
-pub struct Shell(pub(crate) primitives::Shell);
-///
-/// Implementation of [sal_3dlib_core::topology::Solid].
-pub struct Solid(pub(crate) primitives::Solid);
-///
-/// Implementation of [sal_3dlib_core::topology::Compound].
-pub struct Compound(pub(crate) primitives::Compound);
+/// Abstract topological data structure describes a basic entity.
+pub type Shape<T> = shape::Shape<
+    3,
+    vertex::OcctVertex,
+    edge::OcctEdge,
+    wire::OcctWire,
+    face::OcctFace,
+    shell::OcctShell,
+    solid::OcctSolid,
+    compound::OcctCompound,
+    T,
+>;

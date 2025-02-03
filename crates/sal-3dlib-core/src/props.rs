@@ -1,3 +1,4 @@
+//!
 //! Properties associated with the object.
 //!
 //! Note that the object does not necessarily have to implement all of them.
@@ -35,8 +36,8 @@ pub trait Center {
 /// Algorithm for calculating the distance.
 pub trait Dist<T> {
     ///
-    /// Returns the distance between `&self` and `&t`.
-    fn dist(&self, t: &T) -> f64;
+    /// Returns the distance between `&self` and `&other`.
+    fn dist(&self, ohter: &T) -> f64;
 }
 ///
 /// Manages user-defined metadata.
@@ -45,7 +46,7 @@ pub trait Metadata<T> {
     /// Returns a shared reference to the object attributes.
     fn attrs(&self) -> Option<&Attributes<T>>;
     ///
-    /// Returns a shared reference to the object attributes.
+    /// Returns the exlusive reference to the object attributes.
     fn attrs_mut(&mut self) -> Option<&mut Attributes<T>>;
 }
 ///

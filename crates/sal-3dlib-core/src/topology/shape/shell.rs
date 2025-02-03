@@ -1,15 +1,28 @@
-use super::*;
+use super::{face::Face, solid::Solid, vertex::Vertex};
 use crate::{
     gmath::Vector,
     ops::{
         boolean::volume::{Volume, VolumeConf},
         transform::{Rotate, Translate},
     },
-    props::{Center, Metadata},
+    props::{Attributes, Center, Metadata},
 };
+///
+/// Set of faces connected by some edges of their wire boundaries.
+///
+/// It depends on:
+/// - the space dimension - `N`,
+/// - the inner implementation specific to the kernel - `S`,
+/// - an optional attribute.
+pub struct Shell<const N: usize, S, T> {
+    pub(super) inner: S,
+    pub(super) attrs: Option<Attributes<T>>,
+}
 //
 //
 impl<const N: usize, S, T> Metadata<T> for Shell<N, S, T> {
+    //
+    //
     fn attrs(&self) -> Option<&Attributes<T>> {
         self.attrs.as_ref()
     }
@@ -26,10 +39,10 @@ where
     S: Rotate<V, A>,
     A: Into<Vector<N>>,
 {
-    fn rotated(self, origin: Vertex<N, V, T>, axis: A, angle: f64) -> Self {
+    fn rotate(self, origin: Vertex<N, V, T>, axis: A, angle: f64) -> Self {
         let origin = origin.inner;
         Self {
-            inner: self.inner.rotated(origin, axis, angle),
+            inner: self.inner.rotate(origin, axis, angle),
             attrs: self.attrs,
         }
     }
@@ -41,9 +54,9 @@ where
     S: Translate<D>,
     D: Into<Vector<N>>,
 {
-    fn translated(self, dir: D) -> Self {
+    fn translate(self, dir: D) -> Self {
         Self {
-            inner: self.inner.translated(dir),
+            inner: self.inner.translate(dir),
             attrs: self.attrs,
         }
     }
@@ -66,6 +79,8 @@ where
 //
 //
 impl<const N: usize, S, T> From<(S, Attributes<T>)> for Shell<N, S, T> {
+    ///
+    /// Creates an instance from its inner representation and given attribute.
     fn from((shell, attrs): (S, Attributes<T>)) -> Self {
         Self {
             inner: shell,
