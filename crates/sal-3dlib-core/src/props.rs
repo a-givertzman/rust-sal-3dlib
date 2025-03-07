@@ -3,6 +3,13 @@
 //!
 //! Note that the object does not necessarily have to implement all of them.
 ///
+/// Object, which can have a normal.
+pub trait Normal<T, Dir> {
+    ///
+    /// Returns a normal at given point.
+    fn normal_at(&self, point: &T) -> Dir;
+}
+///
 /// Object with a length.
 #[allow(clippy::len_without_is_empty)]
 pub trait Length {
