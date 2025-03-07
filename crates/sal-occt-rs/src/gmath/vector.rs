@@ -1,3 +1,4 @@
+use super::point::Point;
 use glam::{f64::DQuat, DVec3};
 use sal_3dlib_core::gmath;
 ///
@@ -28,6 +29,7 @@ use sal_3dlib_core::gmath;
 /// #     assert_eq!(t_val, r_val);
 /// # }
 /// ```
+#[derive(Clone, Copy)]
 pub struct Vector(pub(crate) gmath::Vector<3>);
 //
 //
@@ -85,6 +87,82 @@ impl Vector {
         Self(
             DQuat::from_axis_angle(axis, rad)
                 .mul_vec3(this)
+                .to_array()
+                .into(),
+        )
+    }
+    ///
+    /// Returns the angle (in radians) between two vectors.
+    ///
+    /// # Examples
+    /// Check the angle between oX and oY:
+    /// ```no_run
+    /// # mod sal_3dlib {
+    /// #     pub use sal_occt_rs::*;
+    /// # };
+    /// # //
+    /// use core::f64::consts::FRAC_PI_2;
+    /// use sal_3dlib::gmath::vector::Vector;
+    /// //
+    /// let unit_x = Vector::unit_x();
+    /// let unit_y = Vector::unit_y();
+    /// let angle = unit_x.angle(&unit_y);
+    /// assert!((angle - FRAC_PI_2).abs() < f64::EPSILON);
+    /// ```
+    pub fn angle(&self, rhs: &Self) -> f64 {
+        let this = DVec3::from_array(*self.0);
+        let other = DVec3::from_array(*rhs.0);
+        this.angle_between(other)
+    }
+    ///
+    /// Computes the cross product of `self` and `rhs`.
+    ///
+    /// See [the article] for details.
+    ///
+    /// # Examples
+    /// Get oZ as the result of cross product oX and oY:
+    /// ```no_run
+    /// # mod sal_3dlib {
+    /// #     pub use sal_occt_rs::*;
+    /// # };
+    /// # //
+    /// use sal_3dlib::gmath::vector::Vector;
+    /// //
+    /// let unit_x = Vector::unit_x();
+    /// let unit_y = Vector::unit_y();
+    /// // same as calling Vector::unit_z()
+    /// let unit_z = unit_x.cross(&unit_y);
+    /// ```
+    ///
+    /// [the article]: https://en.wikipedia.org/wiki/Cross_product
+    pub fn cross(&self, rhs: &Self) -> Self {
+        let this = DVec3::from_array(*self.0);
+        let other = DVec3::from_array(*rhs.0);
+        Self(this.cross(other).to_array().into())
+    }
+}
+//
+//
+impl From<[Point; 2]> for Vector {
+    ///
+    /// Creates a vector from two points.
+    ///
+    /// # Examples
+    /// Create oX vector:
+    /// ```no_run
+    /// # mod sal_3dlib {
+    /// #     pub use sal_occt_rs::*;
+    /// # };
+    /// # //
+    /// use sal_3dlib::gmath::{point::Point, vector::Vector};
+    /// //
+    /// let origin = Point::from([0.0; 3]);
+    /// let x = Point::from([1.0, 0.0, 0.0]);
+    /// let unit_x = Vector::from([origin, x]);
+    /// ```
+    fn from([start, end]: [Point; 2]) -> Self {
+        Self(
+            (DVec3::from_array(*end) - DVec3::from_array(*start))
                 .to_array()
                 .into(),
         )
