@@ -9,7 +9,7 @@ cxx = "1.0.130"
 glam = { version = "0.24", features = ["bytemuck"] }
 sal-3dlib-core = { path = "../sal-3dlib-core/" }
 opencascade = { path = "../../../opencascade-rs/crates/opencascade" }
-# opencascade = { git = "https://github.com/novartole/opencascade-rs.git", tag = "0.0.1" }
+# opencascade = { git = "https://github.com/a-givertzman/opencascade-rs.git", tag = "0.0.2" }
 sal-core.workspace = true
 sal-sync.workspace = true
 
