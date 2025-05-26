@@ -369,7 +369,6 @@ fn rw_user_defined_attribute() {
         let (result, target) = (
             model
                 .attrs()
-                .expect("Attributes set on reading file")
                 .name(),
             name,
         );
@@ -382,7 +381,7 @@ fn rw_user_defined_attribute() {
             "step {} *model*.attrs.name\n result: {}\n target: {}",
             step, result, target
         );
-        let (result, target) = (model.attrs().unwrap().custom(), &user_data.0);
+        let (result, target) = (model.attrs().custom(), &user_data.0);
         assert_eq!(
             result, target,
             "step {} *model*.attrs.custom\n result: {:?}\ntarget: {:?}",
@@ -392,7 +391,7 @@ fn rw_user_defined_attribute() {
             "step {} *model*.attrs.custom\n result: {:?}\n target: {:?}",
             step, result, target
         );
-        *model.attrs_mut().unwrap().custom_mut() = user_data.1;
+        *model.attrs_mut().custom_mut() = user_data.1;
     }
     test_duration.exit();
 }

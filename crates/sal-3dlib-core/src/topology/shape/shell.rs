@@ -16,20 +16,20 @@ use crate::{
 /// - an optional attribute.
 pub struct Shell<const N: usize, S, T> {
     pub(super) inner: S,
-    pub(super) attrs: Option<Attributes<T>>,
+    pub(super) attrs: Attributes<T>,
 }
 //
 //
 impl<const N: usize, S, T> Metadata<T> for Shell<N, S, T> {
     //
     //
-    fn attrs(&self) -> Option<&Attributes<T>> {
-        self.attrs.as_ref()
+    fn attrs(&self) -> &Attributes<T> {
+        &self.attrs
     }
     //
     //
-    fn attrs_mut(&mut self) -> Option<&mut Attributes<T>> {
-        self.attrs.as_mut()
+    fn attrs_mut(&mut self) -> &mut Attributes<T> {
+        &mut self.attrs
     }
 }
 //
@@ -84,7 +84,7 @@ impl<const N: usize, S, T> From<(S, Attributes<T>)> for Shell<N, S, T> {
     fn from((shell, attrs): (S, Attributes<T>)) -> Self {
         Self {
             inner: shell,
-            attrs: Some(attrs),
+            attrs: attrs,
         }
     }
 }
