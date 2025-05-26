@@ -7,11 +7,11 @@ edition = "2024"
 anyhow = "1.0.86"
 clap = { version = "4", features = ["derive"] }
 cxx = "1.0.128"
-examples = { path = "../../../opencascade-rs/crates/opencascade" }
-# examples = { git = "https://github.com/a-givertzman/opencascade-rs.git", tag = "0.0.2" }
+# examples = { path = "../../../opencascade-rs/crates/opencascade" }
+examples = { git = "https://github.com/a-givertzman/opencascade-rs.git", tag = "0.0.2" }
 glam = { version = "^0.24", features = ["bytemuck"] }
-opencascade = { path = "../../../opencascade-rs/crates/opencascade" }
-# opencascade = { git = "https://github.com/a-givertzman/opencascade-rs.git", tag = "0.0.2" }
+# opencascade = { path = "../../../opencascade-rs/crates/opencascade" }
+opencascade = { git = "https://github.com/a-givertzman/opencascade-rs.git", tag = "0.0.2" }
 
 [features]
 default = ["verbose"]
