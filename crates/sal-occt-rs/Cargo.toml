@@ -10,6 +10,7 @@ glam = { version = "0.24", features = ["bytemuck"] }
 sal-3dlib-core = { path = "../sal-3dlib-core/" }
 opencascade = { path = "../../../opencascade-rs/crates/opencascade" }
 # opencascade = { git = "https://github.com/novartole/opencascade-rs.git", branch = "dev" }
+sal-core.workspace = true
 sal-sync.workspace = true
 
 [dev-dependencies]

@@ -8,7 +8,7 @@ anyhow = "1.0.86"
 clap = { version = "4", features = ["derive"] }
 cxx = "1.0.128"
 examples = { git = "https://github.com/novartole/opencascade-rs.git", branch = "try-occt-rs" }
-glam = { version = "0.24.2", features = ["bytemuck"] }
+glam = { version = "^0.24", features = ["bytemuck"] }
 opencascade = { git = "https://github.com/novartole/opencascade-rs.git", branch = "try-occt-rs" }
 
 [features]
