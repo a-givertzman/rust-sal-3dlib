@@ -12,7 +12,7 @@ use super::{
 use opencascade::primitives::{self, IntoShape};
 pub use sal_3dlib_core::topology::shape::compound::Solids;
 use sal_3dlib_core::{ops::boolean::volume, props::Center, topology::shape::compound};
-use sal_sync::services::entity::error::str_err::StrErr;
+use sal_core::error::Error;
 ///
 /// Group of any type of topological objects.
 ///
@@ -40,7 +40,7 @@ impl Solids<OcctSolid> for OcctCompound {
 //
 //
 impl volume::AlgoMakerVolume<OcctFace, OcctShell, OcctSolid> for OcctCompound {
-    type Error = StrErr;
+    type Error = Error;
     //
     //
     fn build<'a>(
@@ -61,10 +61,7 @@ impl volume::AlgoMakerVolume<OcctFace, OcctShell, OcctSolid> for OcctCompound {
         )
         .map_or_else(
             |err| {
-                Err(StrErr(format!(
-                    "Compound.solidify | Failed to volume args: {}",
-                    err
-                )))
+                Err(Error::new("Compound", "build").pass_with("Failed to volume", err.to_string()))
             },
             |compound| Ok(Self(compound)),
         )
@@ -100,9 +97,9 @@ pub trait AlgoMakerVolume<T>: volume::AlgoMakerVolume<Face<T>, Shell<T>, Solid<T
     ///     face::Face,
     ///     compound::{Compound, AlgoMakerVolume}
     /// };
-    /// use sal_sync::services::entity::error::str_err::StrErr;
+    /// use sal_core::error::Error;
     /// //
-    /// fn create_cube_from_six_planes<T>(planes: [&Face<T>; 6]) -> Result<Compound<T>, StrErr> {
+    /// fn create_cube_from_six_planes<T>(planes: [&Face<T>; 6]) -> Result<Compound<T>, Error> {
     ///     // shells and solids are not involved,
     ///     // so the algorithm takes them as empty arrays
     ///     Compound::build(planes, [], [])
@@ -121,9 +118,9 @@ pub trait AlgoMakerVolume<T>: volume::AlgoMakerVolume<Face<T>, Shell<T>, Solid<T
     ///     compound::{Compound, AlgoMakerVolume},
     ///     solid::Solid,
     /// };
-    /// use sal_sync::services::entity::error::str_err::StrErr;
+    /// use sal_core::error::Error;
     /// //
-    /// fn top_bottom_parts<T>(model: Solid<T>, splitter: Face<T>) -> Result<Compound<T>, StrErr> {
+    /// fn top_bottom_parts<T>(model: Solid<T>, splitter: Face<T>) -> Result<Compound<T>, Error> {
     ///     // again, no shells are involved - 2nd argument is empty
     ///     Compound::build([&splitter], [], [&model])
     /// }
@@ -140,9 +137,9 @@ pub trait AlgoMakerVolume<T>: volume::AlgoMakerVolume<Face<T>, Shell<T>, Solid<T
     ///     shell::Shell,
     ///     solid::Solid,
     /// };
-    /// use sal_sync::services::entity::error::str_err::StrErr;
+    /// use sal_core::error::Error;
     /// //
-    /// fn split_by_waved_surface<T>(model: Solid<T>, splitter: Shell<T>) -> Result<Compound<T>, StrErr> {
+    /// fn split_by_waved_surface<T>(model: Solid<T>, splitter: Shell<T>) -> Result<Compound<T>, Error> {
     ///     // note that in this case there are no faces involved
     ///     Compound::build([], [&splitter], [&model])
     /// }

@@ -44,10 +44,10 @@ pub trait Dist<T> {
 pub trait Metadata<T> {
     ///
     /// Returns a shared reference to the object attributes.
-    fn attrs(&self) -> Option<&Attributes<T>>;
+    fn attrs(&self) -> &Attributes<T>;
     ///
     /// Returns the exlusive reference to the object attributes.
-    fn attrs_mut(&mut self) -> Option<&mut Attributes<T>>;
+    fn attrs_mut(&mut self) -> &mut Attributes<T>;
 }
 ///
 /// Data associated with the object.
