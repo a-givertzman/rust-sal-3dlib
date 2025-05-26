@@ -8,10 +8,10 @@ anyhow = "1.0.86"
 clap = { version = "4", features = ["derive"] }
 cxx = "1.0.128"
 examples = { path = "../../../opencascade-rs/crates/opencascade" }
-# examples = { git = "https://github.com/novartole/opencascade-rs.git", branch = "try-occt-rs" }
+# examples = { git = "https://github.com/novartole/opencascade-rs.git", tag = "0.0.1" }
 glam = { version = "^0.24", features = ["bytemuck"] }
 opencascade = { path = "../../../opencascade-rs/crates/opencascade" }
-# opencascade = { git = "https://github.com/novartole/opencascade-rs.git", branch = "try-occt-rs" }
+# opencascade = { git = "https://github.com/novartole/opencascade-rs.git", tag = "0.0.1" }
 
 [features]
 default = ["verbose"]
