@@ -22,7 +22,7 @@ use sal_3dlib_core::{
     props::{self, Area, Center},
     topology::shape::face,
 };
-use sal_sync::services::entity::error::str_err::StrErr;
+use sal_core::error::Error;
 ///
 /// Part of a surface bounded by a closed wire.
 ///
@@ -93,15 +93,15 @@ impl ops::Rectangle<OcctVertex, Vector> for OcctFace {
 //
 //
 impl ops::Project<OcctVertex> for OcctFace {
-    type Error = StrErr;
+    type Error = Error;
     //
     //
     fn project(&self, vertex: &OcctVertex) -> Result<OcctVertex, Self::Error> {
         self.0.project(&vertex.0).map(OcctVertex).map_err(|why| {
-            StrErr(format!(
-                "OcctFace.project | Failed to project vertex on self: {}",
-                why
-            ))
+            Error::new("OcctFace", "project").pass_with (
+                "Failed to project vertex",
+                why.to_string(),
+            )
         })
     }
 }
@@ -247,8 +247,8 @@ pub trait Rectangle<T>: ops::Rectangle<Vertex<T>, Vector> {
 }
 //
 //
-pub trait Project<T>: ops::Project<Vertex<T>, Error = StrErr> {
-    fn project(&self, vertex: &Vertex<T>) -> Result<Vertex<T>, StrErr> {
+pub trait Project<T>: ops::Project<Vertex<T>, Error = Error> {
+    fn project(&self, vertex: &Vertex<T>) -> Result<Vertex<T>, Error> {
         <Self as ops::Project<Vertex<T>>>::project(self, vertex)
     }
 }
