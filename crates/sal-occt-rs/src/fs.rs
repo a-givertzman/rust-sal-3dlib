@@ -28,8 +28,9 @@ impl Reader {
         primitives::read_step(filename).map(|nodes| Self { nodes })
     }
     ///
-    /// Extracts read buffer into the vector.
-    pub fn into_vec<T>(self, build_attributes: impl Fn(String, primitives::Shape) -> T + 'static) -> anyhow::Result<Vec<(String, Shape<T>)>> {
+    /// Returns shapes in the vector
+    /// - `attributes` - provides access to each item in the vec to create the `Attributes<T>` for them
+    pub fn into_vec<T>(self, attributes: impl Fn(String, primitives::Shape) -> T + 'static) -> anyhow::Result<Vec<(String, Shape<T>)>> {
         let mut elmnts = Vec::with_capacity(self.nodes.len());
         for (key, shape) in self.nodes {
             let shape = match shape.shape_type() {
