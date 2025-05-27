@@ -39,7 +39,7 @@ impl Reader {
                     let occt_vertex = OcctVertex(cad_vertex);
                     let attrs = Attributes::new(
                         key.clone(),
-                        build_attributes(key.clone(), shape),
+                        attributes(key.clone(), shape),
                     );
                     let vertex = Vertex::from((occt_vertex, attrs));
                     Shape::Vertex(vertex)
@@ -49,7 +49,7 @@ impl Reader {
                     let occt_edge = OcctEdge(cad_edge);
                     let attrs = Attributes::new(
                         key.clone(),
-                        build_attributes(key.clone(), shape),
+                        attributes(key.clone(), shape),
                     );
                     let edge = Edge::from((occt_edge, attrs));
                     Shape::Edge(edge)
@@ -59,7 +59,7 @@ impl Reader {
                     let occt_wire = OcctWire(cad_wire);
                     let attrs = Attributes::new(
                         key.clone(),
-                        build_attributes(key.clone(), shape),
+                        attributes(key.clone(), shape),
                     );
                     let wire = Wire::from((occt_wire, attrs));
                     Shape::Wire(wire)
@@ -69,7 +69,7 @@ impl Reader {
                     let occt_face = OcctFace(cad_face);
                     let attrs = Attributes::new(
                         key.clone(),
-                        build_attributes(key.clone(), shape),
+                        attributes(key.clone(), shape),
                     );
                     let face = Face::from((occt_face, attrs));
                     Shape::Face(face)
@@ -79,7 +79,7 @@ impl Reader {
                     let occt_shell = OcctShell(cad_shell);
                     let attrs = Attributes::new(
                         key.clone(),
-                        build_attributes(key.clone(), shape),
+                        attributes(key.clone(), shape),
                     );
                     let shell = Shell::from((occt_shell, attrs));
                     Shape::Shell(shell)
@@ -89,7 +89,7 @@ impl Reader {
                     let occt_solid = OcctSolid(cad_solid);
                     let attrs = Attributes::new(
                         key.clone(),
-                        build_attributes(key.clone(), shape),
+                        attributes(key.clone(), shape),
                     );
                     let solid = Solid::from((occt_solid, attrs));
                     Shape::Solid(solid)
@@ -99,7 +99,7 @@ impl Reader {
                     let occt_compound = OcctCompound(cad_compound);
                     let attrs = Attributes::new(
                         key.clone(),
-                        build_attributes(key.clone(), shape),
+                        attributes(key.clone(), shape),
                     );
                     let compound = Compound::from((occt_compound, attrs));
                     Shape::Compound(compound)
