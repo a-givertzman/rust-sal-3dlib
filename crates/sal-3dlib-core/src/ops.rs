@@ -16,3 +16,18 @@ pub trait Polygon<T> {
     where
         Self: Sized;
 }
+///
+/// Algorithm to build a rectangle.
+pub trait Rectangle<Center, Normal> {
+    ///
+    /// Creates a rectangle from given parameters.
+    fn rect(center: &Center, normal: &Normal, height: f64, width: f64) -> Self;
+}
+///
+/// Defines projection on the object.
+pub trait Project<T> {
+    type Error;
+    //
+    //
+    fn project(&self, point: &T) -> Result<T, Self::Error>;
+}
