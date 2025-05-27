@@ -29,56 +29,77 @@ impl Reader {
     }
     ///
     /// Extracts read buffer into the vector.
-    pub fn into_vec<T>(self) -> anyhow::Result<Vec<(String, Shape<Option<T>>)>> {
+    pub fn into_vec<T>(self, build_attributes: impl Fn(String, primitives::Shape) -> T + 'static) -> anyhow::Result<Vec<(String, Shape<T>)>> {
         let mut elmnts = Vec::with_capacity(self.nodes.len());
         for (key, shape) in self.nodes {
             let shape = match shape.shape_type() {
                 ShapeType::Vertex => {
                     let cad_vertex = primitives::Vertex::try_from(&shape)?;
                     let occt_vertex = OcctVertex(cad_vertex);
-                    let attrs = Attributes::new(key.clone(), None);
+                    let attrs = Attributes::new(
+                        key.clone(),
+                        build_attributes(key.clone(), shape),
+                    );
                     let vertex = Vertex::from((occt_vertex, attrs));
                     Shape::Vertex(vertex)
                 }
                 ShapeType::Edge => {
                     let cad_edge = primitives::Edge::try_from(&shape)?;
                     let occt_edge = OcctEdge(cad_edge);
-                    let attrs = Attributes::new(key.clone(), None);
+                    let attrs = Attributes::new(
+                        key.clone(),
+                        build_attributes(key.clone(), shape),
+                    );
                     let edge = Edge::from((occt_edge, attrs));
                     Shape::Edge(edge)
                 }
                 ShapeType::Wire => {
                     let cad_wire = primitives::Wire::try_from(&shape)?;
                     let occt_wire = OcctWire(cad_wire);
-                    let attrs = Attributes::new(key.clone(), None);
+                    let attrs = Attributes::new(
+                        key.clone(),
+                        build_attributes(key.clone(), shape),
+                    );
                     let wire = Wire::from((occt_wire, attrs));
                     Shape::Wire(wire)
                 }
                 ShapeType::Face => {
                     let cad_face = primitives::Face::try_from(&shape)?;
                     let occt_face = OcctFace(cad_face);
-                    let attrs = Attributes::new(key.clone(), None);
+                    let attrs = Attributes::new(
+                        key.clone(),
+                        build_attributes(key.clone(), shape),
+                    );
                     let face = Face::from((occt_face, attrs));
                     Shape::Face(face)
                 }
                 ShapeType::Shell => {
                     let cad_shell = primitives::Shell::try_from(&shape)?;
                     let occt_shell = OcctShell(cad_shell);
-                    let attrs = Attributes::new(key.clone(), None);
+                    let attrs = Attributes::new(
+                        key.clone(),
+                        build_attributes(key.clone(), shape),
+                    );
                     let shell = Shell::from((occt_shell, attrs));
                     Shape::Shell(shell)
                 }
                 ShapeType::Solid => {
                     let cad_solid = primitives::Solid::try_from(&shape)?;
                     let occt_solid = OcctSolid(cad_solid);
-                    let attrs = Attributes::new(key.clone(), None);
+                    let attrs = Attributes::new(
+                        key.clone(),
+                        build_attributes(key.clone(), shape),
+                    );
                     let solid = Solid::from((occt_solid, attrs));
                     Shape::Solid(solid)
                 }
                 ShapeType::Compound => {
                     let cad_compound = primitives::Compound::try_from(&shape)?;
                     let occt_compound = OcctCompound(cad_compound);
-                    let attrs = Attributes::new(key.clone(), None);
+                    let attrs = Attributes::new(
+                        key.clone(),
+                        build_attributes(key.clone(), shape),
+                    );
                     let compound = Compound::from((occt_compound, attrs));
                     Shape::Compound(compound)
                 }
