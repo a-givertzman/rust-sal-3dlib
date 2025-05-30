@@ -78,7 +78,7 @@ fn calc_volume_and_center_of_hull() {
     let mut time = Instant::now();
     let tree = Reader::read_step("tests/hull_shell.step")
         .expect("read STEP file")
-        .into_vec::<()>()
+        .into_vec::<()>(|_, _| ())
         .expect("turn into *tree*");
     // let tree = read_step::<()>("tests/hull_shell.step").expect("read STEP file");
     log::debug!("*tree* | elapsed: {:?}", time.elapsed());
@@ -209,7 +209,7 @@ fn calc_volume_and_center_of_hull_parallel() {
     let mut time = Instant::now();
     let tree = Reader::read_step("tests/hull_shell.step")
         .expect("read STEP file")
-        .into_vec::<()>()
+        .into_vec::<()>(|_, _| ())
         .expect("turn into *tree*");
     log::debug!("*tree* | elapsed: {:?}", time.elapsed());
     let (result, target) = (tree.len(), 1);
@@ -344,13 +344,13 @@ fn rw_user_defined_attribute() {
     test_duration.run().unwrap();
     type TestData = Vec<u8>;
     let test_data = [
-        ("/my_shell", (None, Some("test_data".as_bytes().to_vec()))),
-        ("/my_shell", (Some("test_data".as_bytes().to_vec()), None)),
+        ("/my_shell", (vec![], "test_data".as_bytes().to_vec())),
+        ("/my_shell", ("test_data".as_bytes().to_vec(), vec![])),
     ];
     let time = Instant::now();
     let tree = Reader::read_step("tests/hull_shell.step")
         .expect("read STEP file")
-        .into_vec::<TestData>()
+        .into_vec::<TestData>(|_, _| vec![])
         .expect("turn into *tree*");
     // let tree = read_step::<TestData>("tests/hull_shell.step").expect("read STEP file");
     log::debug!("*tree* | elapsed: {:?}", time.elapsed());

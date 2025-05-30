@@ -4,13 +4,14 @@
 //! It provides the final object - [Compound] - and its related trait implementations.
 //
 use super::{
+    edge::OcctEdge,
     face::{Face, OcctFace},
     shell::{OcctShell, Shell},
     solid::{OcctSolid, Solid},
     vertex::OcctVertex,
 };
 use opencascade::primitives::{self, IntoShape};
-pub use sal_3dlib_core::topology::shape::compound::Solids;
+pub use sal_3dlib_core::topology::shape::compound::{Edges, Solids};
 use sal_3dlib_core::{ops::boolean::volume, props::Center, topology::shape::compound};
 use sal_core::error::Error;
 ///
@@ -35,6 +36,13 @@ impl Center for OcctCompound {
 impl Solids<OcctSolid> for OcctCompound {
     fn solids(&self) -> impl IntoIterator<Item = OcctSolid> {
         self.0.as_ref().into_shape().solids().map(OcctSolid)
+    }
+}
+//
+//
+impl Edges<OcctEdge> for OcctCompound {
+    fn edges(&self) -> impl IntoIterator<Item = OcctEdge> {
+        self.0.as_ref().into_shape().edges().map(OcctEdge)
     }
 }
 //

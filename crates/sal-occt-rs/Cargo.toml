@@ -6,10 +6,10 @@ version.workspace = true
 [dependencies]
 anyhow = "1.0.93"
 cxx = "1.0.130"
-glam = { version = "0.24", features = ["bytemuck"] }
+glam = { version = "0.30", features = ["bytemuck"] }
 sal-3dlib-core = { path = "../sal-3dlib-core/" }
-opencascade = { path = "../../../opencascade-rs/crates/opencascade" }
-# opencascade = { git = "https://github.com/novartole/opencascade-rs.git", branch = "dev" }
+# opencascade = { path = "../../../opencascade-rs/crates/opencascade" }
+opencascade = { git = "https://github.com/a-givertzman/opencascade-rs.git", tag = "0.0.3" }
 sal-core.workspace = true
 sal-sync.workspace = true
 

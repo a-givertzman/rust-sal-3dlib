@@ -45,7 +45,7 @@ fn import_from_step_file() {
     for (step, (filename, model_names)) in test_data.into_iter().enumerate() {
         let imported = Reader::read_step(filename)
             .unwrap()
-            .into_vec::<()>()
+            .into_vec(|_, _| ())
             .unwrap();
         let (result, target) = (imported.len(), model_names.len());
         println!("step: {}, result: {}, target: {}\n", step, result, target);

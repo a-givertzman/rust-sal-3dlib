@@ -1,4 +1,4 @@
-use super::{face::Face, shell::Shell, solid::Solid, vertex::Vertex};
+use super::{edge::Edge, face::Face, shell::Shell, solid::Solid, vertex::Vertex};
 use crate::{
     ops::boolean::volume::AlgoMakerVolume,
     props::{Attributes, Center},
@@ -104,6 +104,24 @@ where
     fn solids(&self) -> impl IntoIterator<Item = Solid<N, S, T>> {
         self.inner.solids().into_iter().map(|solid| Solid {
             inner: solid,
+            attrs: None,
+        })
+    }
+}
+//
+//
+pub trait Edges<T> {
+    fn edges(&self) -> impl IntoIterator<Item = T>;
+}
+//
+//
+impl<const N: usize, E, C, T> Edges<Edge<N, E, T>> for Compound<N, C, T>
+where
+    C: Edges<E>,
+{
+    fn edges(&self) -> impl IntoIterator<Item = Edge<N, E, T>> {
+        self.inner.edges().into_iter().map(|edge| Edge {
+            inner: edge,
             attrs: None,
         })
     }

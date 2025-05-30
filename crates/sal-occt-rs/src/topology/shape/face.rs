@@ -4,17 +4,25 @@
 //! It provides the final object - [Face] - and its related trait implementations.
 //
 use super::{
+    compound::OcctCompound,
     vertex::{OcctVertex, Vertex},
     wire::OcctWire,
 };
-use crate::gmath::vector::Vector;
+use crate::{
+    gmath::vector::Vector,
+    ops::{self, boolean::OpConf},
+};
 use glam::DVec3;
-use opencascade::primitives;
+use opencascade::{
+    primitives::{self, IntoShape},
+    workplane::Workplane,
+};
 use sal_3dlib_core::{
     ops::transform,
-    props::{Area, Center},
+    props::{self, Area, Center},
     topology::shape::face,
 };
+use sal_core::error::Error;
 ///
 /// Part of a surface bounded by a closed wire.
 ///
@@ -61,6 +69,65 @@ impl transform::Rotate<OcctVertex, Vector> for OcctFace {
 impl transform::Translate<Vector> for OcctFace {
     fn translate(self, dir: Vector) -> Self {
         Self(self.0.translated(DVec3::from_array(*dir.0)))
+    }
+}
+//
+//
+impl ops::Rectangle<OcctVertex, Vector> for OcctFace {
+    fn rect(center: &OcctVertex, normal: &Vector, height: f64, width: f64) -> Self {
+        let rect = OcctWire(
+            Workplane::new(
+                DVec3::from_array({
+                    let x = center.0.x();
+                    let y = center.0.y();
+                    let z = center.0.z();
+                    [x, y, z]
+                }),
+                DVec3::from_array(*normal.0),
+            )
+            .rect(width, height),
+        );
+        Self::try_from(&rect).unwrap()
+    }
+}
+//
+//
+impl ops::Project<OcctVertex> for OcctFace {
+    type Error = Error;
+    //
+    //
+    fn project(&self, vertex: &OcctVertex) -> Result<OcctVertex, Self::Error> {
+        self.0.project(&vertex.0).map(OcctVertex).map_err(|why| {
+            Error::new("OcctFace", "project").pass_with (
+                "Failed to project vertex",
+                why.to_string(),
+            )
+        })
+    }
+}
+//
+//
+impl props::Normal<OcctVertex, Vector> for OcctFace {
+    fn normal_at(&self, point: &OcctVertex) -> Vector {
+        let [x, y, z] = self
+            .0
+            .normal_at(DVec3::from_array({
+                let x = point.0.x();
+                let y = point.0.y();
+                let z = point.0.z();
+                [x, y, z]
+            }))
+            .to_array();
+        Vector::new(x, y, z)
+    }
+}
+//
+//
+impl ops::boolean::Intersect<Self, OpConf, OcctCompound> for OcctFace {
+    fn intersect(&self, rhs: &Self, conf: OpConf) -> OcctCompound {
+        let this = self.0.as_ref().into_shape();
+        let other = rhs.0.as_ref().into_shape();
+        OcctCompound(this.intersect_with(&other, conf.parallel))
     }
 }
 ///
@@ -170,5 +237,32 @@ pub trait Translate: transform::Translate<Vector> {
 }
 //
 //
+pub trait Rectangle<T>: ops::Rectangle<Vertex<T>, Vector> {
+    fn rect(center: &Vertex<T>, normal: &Vector, height: f64, width: f64) -> Self
+    where
+        Self: Sized,
+    {
+        <Self as ops::Rectangle<Vertex<T>, Vector>>::rect(center, normal, height, width)
+    }
+}
+//
+//
+pub trait Project<T>: ops::Project<Vertex<T>, Error = Error> {
+    fn project(&self, vertex: &Vertex<T>) -> Result<Vertex<T>, Error> {
+        <Self as ops::Project<Vertex<T>>>::project(self, vertex)
+    }
+}
+//
+//
+pub trait Normal<T>: props::Normal<Vertex<T>, Vector> {
+    fn normal_at(&self, vertex: &Vertex<T>) -> Vector {
+        <Self as props::Normal<Vertex<T>, Vector>>::normal_at(self, vertex)
+    }
+}
+//
+//
 impl<T> Rotate<T> for Face<T> {}
 impl<T> Translate for Face<T> {}
+impl<T> Rectangle<T> for Face<T> {}
+impl<T> Project<T> for Face<T> {}
+impl<T> Normal<T> for Face<T> {}
