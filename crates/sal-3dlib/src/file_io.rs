@@ -3,7 +3,7 @@ use parry3d_f64::math::Vec3;
 use parry3d_f64::shape::{TriMesh, TriMeshFlags};
 use sal_core::error::Error;
 use std::io::Write;
-use std::path::PathBuf;
+use std::path::*;
 
 ///
 /// Load data from .obj file
@@ -32,10 +32,10 @@ pub fn load_obj(path: PathBuf) -> Result<TriMesh, Error> {
 }
 ///
 /// Load data from .stl file
-pub fn load_stl(path: &PathBuf) -> Result<TriMesh, Error> {
+pub fn load_stl(path: &Path) -> Result<TriMesh, Error> {
     let error = Error::new("Shape", "load_stl");
     let file =
-        std::fs::File::open(path).map_err(|err| error.pass_with("File::open", err.to_string()))?;
+        std::fs::File::open(path).map_err(|err| error.pass_with(format!("File::open, path:{:?}", path), err.to_string()))?;
     let mut reader = std::io::BufReader::new(file);
     let stl_mesh = stl_io::read_stl(&mut reader)
         .map_err(|err| error.pass_with("stl_io::read_stl", err.to_string()))?;
@@ -60,7 +60,7 @@ pub fn load_stl(path: &PathBuf) -> Result<TriMesh, Error> {
 }
 ///
 /// Write data to .stl file
-pub fn write_stl(path: &PathBuf, mesh: &TriMesh) -> Result<(), Error> {
+pub fn write_stl(path: &Path, mesh: &TriMesh) -> Result<(), Error> {
     let error = Error::new("Shape", "write_stl");
     let (result, empty_normals): (Vec<_>, Vec<_>) = mesh
         .triangles()
