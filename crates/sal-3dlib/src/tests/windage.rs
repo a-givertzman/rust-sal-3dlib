@@ -6,9 +6,8 @@ use std::{path::Path, sync::Arc};
 
 #[test]
 fn windage_interval_sofia() {
-    let scale = 0.001f64;
     let path = "src/tests/assets/hull.stl";
-    let mesh = load_stl(Path::new(path)).unwrap().scaled(Vec3::new(scale, scale, scale));
+    let mesh = load_stl(Path::new(path), 1000.).unwrap();
     let target = [
         (5., 1236.268, 60.460, 10.873),
         (6., 1105.868, 59.704, 11.507),
@@ -129,11 +128,9 @@ fn windage_edge_sofia() {
 #[test]
 fn windage_sofia2() {
     let dbg = Dbg::new("test", "windage_sofia2");
-    let scale = 0.001f64;
     //   let path = "src/tests/assets/Sofiya_4work.stl";
     let path = "src/tests/assets/hull.stl";
-    let mesh = load_stl(Path::new(path)).unwrap().scaled(Vec3::new(scale, scale, scale));
-
+    let mesh = load_stl(Path::new(path), 1000.).unwrap();
     let midel_dx = 65.25;
     let lbp = 130.5;
     let draught_min = 2.001;

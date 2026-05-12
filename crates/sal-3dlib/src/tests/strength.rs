@@ -6,10 +6,9 @@ use crate::{calculate_strength_bounded, calculate_strength_full, file_io::*, tes
 
 #[test]
 pub fn strength_sofia_full() {
-    let scale = 0.001f64;
     let path = "src/tests/assets/hull.stl";
     let dbg = Dbg::new("test", "strength_sofia_full");
-    let mesh = load_stl(Path::new(&path)).unwrap().scaled(Vec3::new(scale, scale, scale));
+    let mesh = load_stl(Path::new(&path), 1000.).unwrap();
     let physical_frames: [f64; 196] = [
         -3.6, -3.0, -2.4, -1.8, -1.2, -0.6, 0.0, 0.6, 1.2, 1.8, 2.4, 3.0, 3.6, 4.2, 4.8, 5.4, 6.0,
         6.7, 7.4, 8.1, 8.8, 9.5, 10.2, 10.9, 11.6, 12.3, 13.0, 13.7, 14.4, 15.1, 15.8, 16.5, 17.2,
@@ -60,9 +59,8 @@ pub fn strength_sofia_full() {
 
 #[test]
 fn strength_sofia_bounded() {
-    let scale = 0.001f64;
     let path = "src/tests/assets/hull.stl";
-    let mesh = load_stl(Path::new(path)).unwrap().scaled(Vec3::new(scale, scale, scale));
+    let mesh = load_stl(Path::new(path), 1000.).unwrap();
     let dx = 65.25;
     let physical_frames: [f64; 196] = [
         -3.6, -3.0, -2.4, -1.8, -1.2, -0.6, 0.0, 0.6, 1.2, 1.8, 2.4, 3.0, 3.6, 4.2, 4.8, 5.4, 6.0,

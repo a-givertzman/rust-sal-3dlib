@@ -6,9 +6,8 @@ use crate::{load_stl, tests::local_cache::{DisplacementCache, LocalCache}, tools
 #[test]
 fn hydrostatic_sofia() {
     let dbg = Dbg::new("test", "hydrostatic_sofia");
-    let scale = 0.001f64;
     let path = "src/tests/assets/hull.stl";
-    let mesh = load_stl(Path::new(path)).unwrap().scaled(Vec3::new(scale, scale, scale));
+    let mesh = load_stl(Path::new(path), 1000.).unwrap();
     let dx = 65.25;
     let mut cache = DisplacementCache::new(&dbg, "src/tests/assets/displacement_cache_hull".into());
     dbg!(cache.init().unwrap());
@@ -103,9 +102,8 @@ fn hydrostatic_sofia() {
 #[test]
 fn hydrostatic_waterline_sofia1() {
     let dbg = Dbg::new("test", "hydrostatic_waterline_sofia1");
-    let scale = 0.001f64;
     let path = "src/tests/assets/hull.stl";
-    let mesh = load_stl(Path::new(path)).unwrap().scaled(Vec3::new(scale, scale, scale));
+    let mesh = load_stl(Path::new(path), 1000.).unwrap();
     let dx = 65.25;
     let mut cache = DisplacementCache::new(&dbg, "src/tests/assets/displacement_cache_hull".into());
     dbg!(cache.init().unwrap());
@@ -210,9 +208,8 @@ fn hydrostatic_waterline_sofia1() {
 #[test]
 fn hydrostatic_waterline_sofia2() {
     let dbg = Dbg::new("test", "hydrostatic_waterline_sofia2");
-    let scale = 0.001f64;
     let path = "src/tests/assets/Sofiya_4work.stl";
-    let mesh = load_stl(Path::new(path)).unwrap().scaled(Vec3::new(scale, scale, scale));
+    let mesh = load_stl(Path::new(path), 1000.).unwrap();
     let dx = 65.25;
     /*  let heel_steps = vec![
         -60., -50., -45., -40., -35., -30., -25., -20., -15., -10., -5., -2., -1., -0.5, -0.2, 0.,
@@ -248,9 +245,8 @@ fn hydrostatic_waterline_sofia2() {
 #[test]
 fn hydrostatic_inertia_sofia1() {
     let dbg = Dbg::new("test", "hydrostatic_inertia_sofia1");
-    let scale = 0.001f64;
     let path = "src/tests/assets/hull.stl";
-    let mesh = load_stl(Path::new(path)).unwrap().scaled(Vec3::new(scale, scale, scale));
+    let mesh = load_stl(Path::new(path), 1000.).unwrap();
     let dx = 65.25;
     let mut cache = DisplacementCache::new(&dbg, "src/tests/assets/displacement_cache_hull".into());
     dbg!(cache.init().unwrap());
@@ -339,9 +335,8 @@ fn hydrostatic_inertia_sofia1() {
 #[test]
 fn hydrostatic_inertia_sofia2() {
     let dbg = Dbg::new("test", "hydrostatic_inertia_sofia2");
-    let scale = 0.001f64;
     let path = "src/tests/assets/Sofiya_4work.stl";
-    let mesh = load_stl(Path::new(path)).unwrap().scaled(Vec3::new(scale, scale, scale));
+    let mesh = load_stl(Path::new(path), 1000.).unwrap();
     let dx = 65.25;
     let heel_steps = vec![
         -20., 0., 20.,
@@ -368,9 +363,8 @@ fn hydrostatic_inertia_sofia2() {
 #[test]
 fn hydrostatic_waterline_size_sofia1() {
     let dbg = Dbg::new("test", "hydrostatic_waterline_size_sofia1");
-    let scale = 0.001f64;
     let path = "src/tests/assets/hull.stl";
-    let mesh = load_stl(Path::new(path)).unwrap().scaled(Vec3::new(scale, scale, scale));
+    let mesh = load_stl(Path::new(path), 1000.).unwrap();
     let mut cache = DisplacementCache::new(&dbg, "src/tests/assets/displacement_cache_hull".into());
     dbg!(cache.init().unwrap());
     let draught_steps: Vec<_> = (1..=28).map(|v| (v as f64) * 0.5).collect();
@@ -418,9 +412,8 @@ fn hydrostatic_waterline_size_sofia1() {
 #[test]
 fn hydrostatic_waterline_size_sofia2() {
     let dbg = Dbg::new("test", "hydrostatic_waterline_size_sofia2");
-    let scale = 0.001f64;
     let path = "src/tests/assets/Sofiya_4work.stl";
-    let mesh = load_stl(Path::new(path)).unwrap().scaled(Vec3::new(scale, scale, scale));
+    let mesh = load_stl(Path::new(path), 1000.).unwrap();
     let draught_steps: Vec<_> = (1..=12).map(|v| v as f64).collect();
 
     for &draught in &draught_steps {

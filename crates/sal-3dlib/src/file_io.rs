@@ -32,8 +32,9 @@ pub fn load_obj(path: PathBuf) -> Result<TriMesh, Error> {
 }
 ///
 /// Load data from .stl file
-pub fn load_stl(path: &Path) -> Result<TriMesh, Error> {
+pub fn load_stl(path: &Path, model_scale: f64) -> Result<TriMesh, Error> {
     let error = Error::new("Shape", "load_stl");
+    let scale = if model_scale > 0. && model_scale != 1. { Some(1./model_scale) } else { None };
     let file =
         std::fs::File::open(path).map_err(|err| error.pass_with(format!("File::open, path:{:?}", path), err.to_string()))?;
     let mut reader = std::io::BufReader::new(file);
@@ -55,8 +56,16 @@ pub fn load_stl(path: &Path) -> Result<TriMesh, Error> {
             ]
         })
         .collect::<Vec<_>>();
-    TriMesh::with_flags(vertices, indices, TriMeshFlags::all())
+    let mesh = TriMesh::with_flags(vertices, indices, TriMeshFlags::all())
         .map_err(|err| error.pass_with("TriMesh::with_flags", err.to_string()))
+        .map(|m| 
+            if let Some(scale) = scale { 
+                m.scaled(Vec3::new(model_scale, scale, scale))
+            } else {
+                m
+            }
+        );
+    mesh
 }
 ///
 /// Write data to .stl file
