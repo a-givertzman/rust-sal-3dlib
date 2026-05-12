@@ -5,7 +5,12 @@ version.workspace = true
 
 [dependencies]
 sal-3dlib-core = { path = "../sal-3dlib-core/" }
-sal-occt-rs = { path = "../sal-occt-rs/" }
+parry3d-f64.workspace = true
+log.workspace = true
+sal-core.workspace = true
+obj.workspace = true
+stl_io.workspace = true
+bincode.workspace = true
 
 [dev-dependencies]
 debugging.workspace = true
