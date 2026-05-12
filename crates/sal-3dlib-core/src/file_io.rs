@@ -1,7 +1,5 @@
-use obj::{Obj, ObjData};
-use parry3d_f64::shape::{TriMesh, TriMeshFlags};
+use sal_core::dbg::Dbg;
 use sal_core::error::Error;
-use std::io::Write;
 use std::path::PathBuf;
 ///
 pub fn remove(_: &Dbg, path: &PathBuf)  {
