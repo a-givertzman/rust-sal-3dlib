@@ -23,6 +23,11 @@ pub fn properties(mesh: &TriMesh, density: f64) -> (f64, Position) {
         ),
     )
 }
+/// Объем меша
+pub fn volume(mesh: &TriMesh) -> f64 {
+    let inv_mass = parry3d_f64::shape::Shape::mass_properties(mesh, 1.).inv_mass;
+    if inv_mass > 0. { 1. / inv_mass } else { 0. }
+}
 ///
 /// Расчет начала координат для отсеков как
 /// проекции центра объема модели на ее нижнюю плоскость
