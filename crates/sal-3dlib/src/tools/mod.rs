@@ -31,7 +31,7 @@ pub fn volume(mesh: &TriMesh) -> f64 {
 ///
 /// Расчет начала координат для отсеков как
 /// проекции центра объема модели на ее нижнюю плоскость
-pub(crate) fn compartment_center(mesh: &TriMesh) -> Vec3 {
+pub fn compartment_center(mesh: &TriMesh) -> Vec3 {
     let properties = parry3d_f64::shape::Shape::mass_properties(mesh, 1.);
     let aabb = mesh.local_aabb();
     Vec3::new(properties.local_com.x, properties.local_com.y, aabb.mins.z)
