@@ -1,4 +1,4 @@
-use std::sync::Arc;
+use std::{fs::File, path::Path, sync::Arc};
 
 use parry3d_f64::{math::Vec3, shape::TriMesh};
 use sal_core::error::Error;
@@ -210,6 +210,24 @@ impl WindageProfile {
         }
 
         Ok(total_bow_area)
+    }
+    //
+    pub fn save(&self, path: &Path) -> Result<(), Error> {
+        let error = Error::new("WindageProfile", "save");
+        let mut file = File::create(path).map_err(|err| error.pass_with(format!("File::create error, path{:?}", path), err.to_string()))?;
+        bincode::encode_into_std_write(&self, &mut file, bincode::config::standard())
+            .map_err(|err| error.pass_with("bincode::encode_into_writer", err.to_string()))?;
+        Ok(())
+    }
+    //
+    pub fn read(path: &Path) -> Result<Self, Error> {
+        let error = Error::new("WindageProfile", "read");
+        let mut file = File::open(path).map_err(|err| error.pass_with(format!("File::open error, path{:?}", path), err.to_string()))?;
+        let data: WindageProfile = match bincode::decode_from_std_read(&mut file, bincode::config::standard()) {
+            Ok(data) => Ok(data),
+            Err(err) => Err(error.pass_with("Encode error", err.to_string())),
+        }.map_err(|err| error.pass_with("decode_from_std_read", err.to_string()))?;
+        Ok(data)      
     }
 }
 
