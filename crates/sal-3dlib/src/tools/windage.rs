@@ -1,6 +1,7 @@
 use std::{fs::File, path::Path, sync::Arc};
 
 use parry3d_f64::{math::Vec3, shape::TriMesh};
+use sal_3dlib_core::math::Bounds;
 use sal_core::error::Error;
 use bincode::{Decode, Encode};
 
@@ -158,7 +159,23 @@ impl WindageProfile {
 
         (av, mx_sum, mz_sum, cz_sub)
     }
-
+    ///
+    pub fn calculate_area_array(&self, draught: f64, trim_deg: f64) -> Vec<f64> {
+        let trim_tan = trim_deg.to_radians().tan();
+        self.columns.iter().enumerate().map(|(ix, col)| {
+            if col.intervals.is_empty() {
+                return 0.;
+            }
+            let x_c = self.x_min + (ix as f64 + 0.5) * self.step;
+            let arm = x_c - self.midel_dx;
+            let local_wl = draught + arm * trim_tan;
+            col.intervals.iter().map(|(z_min, z_max)| {
+                let z_up_start = z_min.max(local_wl);
+                let z_up_end = z_max;
+                (z_up_end - z_up_start).max(0.) * self.step
+            }).sum()
+        }).collect()
+    }
     /// Расчет площади проекции по правилу дополнительного запаса плавучести в носу
     pub fn bow_area(&self, draught: f64, trim_deg: f64) -> Result<f64, Error> {
         let trim_tan = trim_deg.to_radians().tan();
