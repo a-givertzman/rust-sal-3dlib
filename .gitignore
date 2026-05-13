@@ -19,6 +19,7 @@ Cargo.lock
 # retain points
 assets/retain/
 assets/testing/
+crates/sal-3dlib/src/tests/assets/SURF_Sofiya.stl
 retain_points.json
 
 # Plot results

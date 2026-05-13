@@ -60,7 +60,7 @@ pub fn load_stl(path: &Path, model_scale: f64) -> Result<TriMesh, Error> {
         .map_err(|err| error.pass_with("TriMesh::with_flags", err.to_string()))
         .map(|m| 
             if let Some(scale) = scale { 
-                m.scaled(Vec3::new(model_scale, scale, scale))
+                m.scaled(Vec3::splat(scale))
             } else {
                 m
             }
