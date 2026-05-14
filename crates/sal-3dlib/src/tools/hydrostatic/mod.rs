@@ -60,7 +60,7 @@ pub fn calculate_waterline_size(mesh: &TriMesh, draught: f64) -> (f64, f64) {
 }
 //
 pub fn position(center: &Vec3, heel: f64, trim: f64, draught: f64) -> Pose3 {
-    let heel_rad = -heel.to_radians();
+    let heel_rad = heel.to_radians();
     let trim_rad = trim.to_radians();
 
     // 1. Вращение по дифференту (trim) вокруг оси Y
@@ -86,23 +86,3 @@ pub fn position(center: &Vec3, heel: f64, trim: f64, draught: f64) -> Pose3 {
     Pose3::from_parts(-point, rotation)
 }
 
-/// Расчет нормали по крену и дифференту
-pub fn normal(heel: f64, trim: f64) -> Vec3 {
-    let heel_rad = heel.to_radians();
-    let trim_rad = -trim.to_radians();
-    
-    // 1. Вращение по дифференту вокруг оси Y
-    let trim_rotation = DQuat::from_axis_angle(Vec3::Y, trim_rad);
-    
-    // 2. Получаем трансформированную ось X
-    let transformed_x_axis = trim_rotation * Vec3::X;
-    
-    // 3. Вращение по крену вокруг новой оси X
-    let heel_rotation = DQuat::from_axis_angle(transformed_x_axis.normalize(), heel_rad);
-    
-    // 4. Итоговое вращение
-    let rotation = heel_rotation * trim_rotation;
-    
-    // 5. Трансформируем вектор нормали (Z-up)
-    rotation * Vec3::Z
-}
