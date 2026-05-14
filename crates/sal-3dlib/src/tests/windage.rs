@@ -21,13 +21,14 @@ fn windage_interval_sofia() {
     let draught_min = 2.001;
     let windage = WindageProfile::new(Arc::new(mesh), midel_dx, draught_min, lbp, 10000);
     for (draught, target_area, target_sx, target_sz) in &target {
-        let (res_area, mx, mz, _) = windage.calculate_area(*draught, 0.);
-        let res_sx = mx/res_area;
-        let res_sz = mz/res_area; 
+        let (res_area_full, mx, mz, _) = windage.calculate_area(*draught, 0.);
+        let res_sx = mx/res_area_full;
+        let res_sz = mz/res_area_full; 
+        let res_area_array: f64 = windage.calculate_area_array(*draught, 0.).iter().sum();
         println!(
             "draught:{:.3} area:({:.3} {:.3} {:.3}): sx:({:.3} {:.3} {:.3}) sz:({:.3} {:.3} {:.3})",
             draught, 
-            target_area, res_area, target_area - res_area, 
+            target_area, res_area_full, res_area_array, 
             target_sx, res_sx, target_sx - res_sx,
             target_sz, res_sz, target_sz - res_sz,
         );
