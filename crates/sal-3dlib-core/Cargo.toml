@@ -10,3 +10,10 @@ bincode.workspace = true
 serde.workspace = true
 parry3d-f64.workspace = true
 log.workspace = true
+testing.workspace = true
+
+[dev-dependencies]
+debugging.workspace = true
+env_logger.workspace = true
+log.workspace = true
+sal-sync.workspace = true
