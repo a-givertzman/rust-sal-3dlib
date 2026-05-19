@@ -58,6 +58,28 @@ pub fn calculate_waterline_size(mesh: &TriMesh, draught: f64) -> (f64, f64) {
     let (dx, dy) = sliced_mesh.waterline_size();
     (dx, dy)
 }
+
+pub fn calculate_h_slant(mesh: &TriMesh, origin: Vec3, heel: f64, trim: f64) -> f64 {
+    let isometry = position(&origin, heel, trim, 0.);
+    let array: Vec<_> = mesh.vertices().iter().map(|p| isometry.transform_point(*p)).collect();
+//    let mesh_center = isometry.transform_point(origin);
+    let p_min = array.into_iter()
+        .fold(Vec3::new(0., 0., f64::MAX), |p_min, p_current| {
+            if p_min.z < p_current.z {
+                p_current
+            } else {
+                p_min
+            }
+        });
+    #[allow(non_snake_case)]
+    let [X, Y, Z] = p_min.to_array();
+    let [xi, yi, _] = origin.to_array();    
+    //Z + (yi-Y)*tg(theta)+(xi-X) *tg(psi)/cos(theta);
+    let theta = heel.to_radians();
+    let psi = trim.to_radians();
+    let res = Z + (yi-Y)*theta.tan() + (xi-X)*psi.tan()/theta.cos();
+    res
+}
 //
 pub fn position(center: &Vec3, heel: f64, trim: f64, draught: f64) -> Pose3 {
     let heel_rad = heel.to_radians();
