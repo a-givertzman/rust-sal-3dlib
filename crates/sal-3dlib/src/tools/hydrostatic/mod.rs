@@ -65,7 +65,7 @@ pub fn calculate_h_slant(mesh: &TriMesh, origin: Vec3, heel: f64, trim: f64) -> 
 //    let mesh_center = isometry.transform_point(origin);
     let p_min = array.into_iter()
         .fold(Vec3::new(0., 0., f64::MAX), |p_min, p_current| {
-            if p_min.z < p_current.z {
+            if p_min.z > p_current.z {
                 p_current
             } else {
                 p_min
