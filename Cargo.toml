@@ -16,6 +16,8 @@ sal-sync = { git = "https://github.com/a-givertzman/rust-sal-sync.git", tag = "0
 testing = { git = "https://github.com/a-givertzman/rust-testing.git", tag = "0.1.2" }
 
 parry3d-f64 = "~0.26"
+baby_shark = "~0.3"
+rustc-hash = "~2.1"
 splines = "~5.0"
 obj = "~0.10"
 stl_io = "~0.11"

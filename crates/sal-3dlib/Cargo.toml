@@ -6,6 +6,8 @@ version.workspace = true
 [dependencies]
 sal-3dlib-core = { path = "../sal-3dlib-core/" }
 parry3d-f64.workspace = true
+baby_shark.workspace = true
+rustc-hash.workspace = true
 log.workspace = true
 sal-core.workspace = true
 obj.workspace = true

@@ -2,11 +2,13 @@ mod hydrostatic;
 mod strength;
 mod windage;
 mod expand;
+mod optimize;
 
 pub use hydrostatic::*;
 pub use strength::*;
 pub use windage::*;
 pub use expand::*;
+pub use optimize::*;
 
 use parry3d_f64::math::Vec3;
 use parry3d_f64::shape::TriMesh;
