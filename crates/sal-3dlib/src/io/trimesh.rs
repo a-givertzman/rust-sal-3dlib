@@ -7,7 +7,7 @@ use std::path::*;
 ///
 /// Load data from .stl file
 pub fn load(path: &Path, model_scale: f64) -> Result<TriMesh, Error> {
-    let error = Error::new("Shape", "load_stl");
+    let error = Error::new("trimesh", "load");
     let scale = if model_scale > 0. && model_scale != 1. { Some(1. / model_scale) } else { None };
     
     let file = std::fs::File::open(path)
@@ -54,7 +54,7 @@ pub fn load(path: &Path, model_scale: f64) -> Result<TriMesh, Error> {
 
 /// Запись данных TriMesh в .stl файл
 pub fn write(path: &Path, mesh: &TriMesh) -> Result<(), Error> {
-    let error = Error::new("Shape", "write_stl");
+    let error = Error::new("trimesh", "write");
     
     let (result, empty_normals): (Vec<_>, Vec<_>) = mesh
         .triangles()
@@ -89,4 +89,59 @@ pub fn write(path: &Path, mesh: &TriMesh) -> Result<(), Error> {
         
     buffer.write_all(&binary_stl)
         .map_err(|err| error.pass_with(format!("buffer.write_all, path:{:?}", path), err.to_string()))
+}
+
+///
+/// Load data from vec
+pub fn build(vertices: &[[f32; 3]], indicies: &[[usize; 3]]) -> Result<TriMesh, Error> {
+    let error = Error::new("trimesh", "build");
+
+    let vertices = vertices
+        .iter()
+        .map(|v| Vec3::new(v[0] as f64, v[1] as f64, v[2] as f64))
+        .collect::<Vec<_>>();
+
+    let indices = indicies
+        .into_iter()
+        .map(|v| {
+            [
+                v[0] as u32,
+                v[1] as u32,
+                v[2] as u32,
+            ]
+        })
+        .collect::<Vec<_>>();
+
+    TriMesh::with_flags(vertices, indices, TriMeshFlags::all())
+        .map_err(|err| error.pass_with("TriMesh::with_flags", err.to_string()))
+}
+
+/// get data from trimesh
+pub fn data(mesh: &TriMesh) -> Result<(Vec<[f32; 3]>, Vec<[usize; 3]>), Error> {
+    let error = Error::new("trimesh", "data");
+    
+    let (_, empty_normals): (Vec<_>, Vec<_>) = mesh
+        .triangles()
+        .map(|t| (t.normal(), t))
+        .partition(|(n, _)| n.is_some());
+        
+    if !empty_normals.is_empty() {
+        return Err(error.err(format!("calculate normal error")));
+    }
+    
+    // 1. Выгружаем вершины
+    let vertices = mesh
+        .vertices()
+        .iter()
+        .map(|v| v.as_vec3().to_array())
+        .collect::<Vec<_>>();
+
+    // 2. Формируем массив индексов
+    let indices = mesh
+        .indices()
+        .into_iter()
+        .map(|[v1, v2, v3]| [*v1 as usize, *v2 as usize, *v3 as usize])
+        .collect::<Vec<_>>();
+    
+    Ok((vertices, indices))
 }
