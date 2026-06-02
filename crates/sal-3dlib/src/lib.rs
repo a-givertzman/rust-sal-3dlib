@@ -1,6 +1,6 @@
-mod file_io;
+mod io;
 mod tools;
 mod tests;
 
-pub use file_io::*;
+pub use io::*;
 pub use tools::*;

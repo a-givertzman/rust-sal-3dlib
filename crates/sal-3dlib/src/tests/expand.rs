@@ -1,7 +1,7 @@
 use parry3d_f64::math::Vec3;
 use sal_core::dbg::Dbg;
 use std::path::Path;
-use crate::{load_stl, tests::local_cache::{DisplacementCache, LocalCache}, tools::*, write_stl};
+use crate::{io::trimesh::*, tests::local_cache::{DisplacementCache, LocalCache}, tools::*};
 
 
 #[test]
@@ -12,7 +12,7 @@ fn expand_mesh() {
   //  let dst_path = "src/tests/assets/JAPAN_expanded.stl";
     let src_path = "src/tests/assets/hull.stl";
     let dst_path = "src/tests/assets/hull_expanded.stl";  
-    let mesh = load_stl(Path::new(src_path), 1.).unwrap();
+    let mesh = load(Path::new(src_path), 1.).unwrap();
     let mesh = expand_closed_ship_trimesh(&mesh, 10.);
-    write_stl(Path::new(dst_path), &mesh).unwrap();
+    write(Path::new(dst_path), &mesh).unwrap();
 }

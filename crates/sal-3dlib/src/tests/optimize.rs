@@ -1,4 +1,4 @@
-use crate::{load_stl, tools::*, write_stl};
+use crate::{tools::*, io::trimesh::*};
 use baby_shark::{
     decimation::{ConstantErrorDecimationCriteria, EdgeDecimator}, mesh::corner_table::{CornerTableD, CornerTableF} 
 };
@@ -9,8 +9,8 @@ use std::{io::prelude::Write, path::{Path, PathBuf}, sync::Arc};
 #[test]
 fn optimize_sofia() {
     let path = "src/tests/assets/hull.stl";
-    let src_mesh = load_stl(Path::new(path), 1000.).unwrap();
-    let optimized_mesh = optimize(&src_mesh, 0.1).unwrap();
+    let src_mesh = load(Path::new(path), 1000.).unwrap();
+    let optimized_mesh = optimize_trimesh(&src_mesh, 0.1).unwrap();
     let src_aabb = src_mesh.aabb(&Pose::identity());
     let optimized_aabb = optimized_mesh.aabb(&Pose::identity());
     assert!((src_aabb.mins - optimized_aabb.mins).length() <= 0.1, "{}", format!("src:{:?} opt:{:?}", src_aabb.mins, optimized_aabb.mins));
