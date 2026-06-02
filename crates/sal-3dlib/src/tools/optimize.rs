@@ -32,7 +32,7 @@ pub fn trimesh_to_baby_shark(source: &TriMesh) -> CornerTableD {
         .flat_map(|&[a, b, c]| vec![a as usize, b as usize, c as usize])
         .collect();
 
-    // 3. Создаем CornerTableD напрямую через метод, указанный в вашем логе!
+    // 3. Создаем CornerTableD
     CornerTableD::from_vertex_and_face_slices(&vertices, &indices)
 }
 /// Конвертирует сетку из структуры CornerTable (baby_shark) обратно в tri-mesh
