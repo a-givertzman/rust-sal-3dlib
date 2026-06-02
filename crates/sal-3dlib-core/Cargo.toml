@@ -2,3 +2,18 @@
 name = "sal-3dlib-core"
 edition.workspace = true
 version.workspace = true
+
+[dependencies]
+sal-core.workspace = true
+splines.workspace = true
+bincode.workspace = true
+serde.workspace = true
+parry3d-f64.workspace = true
+log.workspace = true
+testing.workspace = true
+
+[dev-dependencies]
+debugging.workspace = true
+env_logger.workspace = true
+log.workspace = true
+sal-sync.workspace = true
