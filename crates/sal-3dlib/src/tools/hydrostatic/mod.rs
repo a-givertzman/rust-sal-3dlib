@@ -94,7 +94,7 @@ pub fn position(center: &Vec3, heel: f64, trim: f64, draught: f64) -> Pose3 {
     let point = rotation * center_offset;
     Pose3::from_parts(-point, rotation)
 }
-
+// Расчет площади и размеров сечения, возвращает [площадь, ширина, высота]
 pub fn calculate_cross_section_at(mesh: &SlicedMesh, mesh_isometry: Pose3, x_coord: f64) -> (f64, f64, f64) {
     let local_section_point = mesh_isometry.transform_point(Vec3::new(x_coord, 0., 0.));
     let local_section_normal = mesh_isometry.transform_vector(Vec3::X).normalize();
