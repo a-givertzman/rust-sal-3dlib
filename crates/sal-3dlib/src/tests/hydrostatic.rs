@@ -1,4 +1,5 @@
-use parry3d_f64::math::Vec3;
+use baby_shark::algo::utils::min;
+use parry3d_f64::{glamx::prelude::Pose3, math::Vec3};
 use sal_core::dbg::Dbg;
 use std::path::Path;
 use crate::{io::trimesh::*, tests::local_cache::{DisplacementCache, LocalCache}, tools::*};
@@ -529,4 +530,34 @@ fn hydrostatic_buttocks_sofia() {
 
     // Проверяем схождение методов
     assert!(delta_percent < 1.0, "Интеграл площадей батоксов разошелся с объемом сетки!");
+}
+//
+#[test]
+fn hydrostatic_aabb_sofia() {
+    let path = "src/tests/assets/hull.stl";
+    let mesh = load(Path::new(path), 1000.).unwrap();
+    let pose = &parry3d_f64::math::Pose::identity();
+    let mesh = match mesh.split(pose, Vec3::Z, 5., 0.00001) {
+        parry3d_f64::query::SplitResult::Pair(lover, _) => lover,
+        parry3d_f64::query::SplitResult::Negative => panic!(),
+        parry3d_f64::query::SplitResult::Positive => panic!(),
+    };
+    let dx = 65.25;
+    let draught = 5.0; 
+    let (rdx, rdy, rdz) = calculate_aabb(&mesh, Vec3::new(dx, 0., 0.), 0., 0., draught);
+    let aabb = mesh.aabb(&parry3d_f64::math::Pose::identity());
+    let (tdx, tdy, tdz) = (aabb.maxs.x - aabb.mins.x, aabb.maxs.y - aabb.mins.y, aabb.maxs.z - aabb.mins.z);
+
+    println!("\n--- Верификация aabb ---");
+    println!("результат: {:.3} {:.3} {:.3} м", rdx, rdy, rdz);
+    println!("цель: {:.3} {:.3} {:.3} м", tdx, tdy, tdz);
+    
+    let delta_percent_x = ((tdx - rdx).abs() * 100.0) / tdx;
+    let delta_percent_y = ((tdx - rdx).abs() * 100.0) / tdx;
+    let delta_percent_z = ((tdx - rdx).abs() * 100.0) / tdx;
+    let delta_percent = delta_percent_x.max(delta_percent_y).max(delta_percent_z);
+    println!("Погрешность:  {:.3}%", delta_percent);
+
+    // Проверяем схождение методов
+    assert!(delta_percent < 1.0, "расчет aabb разошелся с целевым!");
 }

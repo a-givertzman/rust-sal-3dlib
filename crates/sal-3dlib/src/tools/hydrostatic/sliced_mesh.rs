@@ -184,4 +184,17 @@ impl SlicedMesh {
 
         (area, width, height)
     }
+    /// Максимальные размеры (dx, dy, dz)
+    pub fn aabb(&self) -> (f64, f64, f64) {
+        let (x_min, y_min, z_min, x_max, y_max, z_max) = self.submerged_triangles.iter().fold((f64::MAX, f64::MAX, f64::MAX, f64::MIN, f64::MIN, f64::MIN), |(x_min, y_min, z_min, x_max, y_max, z_max), [p1, p2, p3]| 
+            (
+                x_min.min(p1.x).min(p2.x).min(p3.x),
+                y_min.min(p1.y).min(p2.y).min(p3.y),
+                z_min.min(p1.z).min(p2.z).min(p3.z),
+                x_max.max(p1.x).max(p2.x).max(p3.x),
+                y_max.max(p1.y).max(p2.y).max(p3.y),
+                z_max.max(p1.z).max(p2.z).max(p3.z)
+            ));
+        (x_max - x_min, y_max - y_min, z_max - z_min)
+    }
 }

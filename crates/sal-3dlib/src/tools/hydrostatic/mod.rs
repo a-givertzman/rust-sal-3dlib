@@ -122,4 +122,14 @@ pub fn calculate_buttock_section(mesh: &TriMesh, y_coord: f64, draught: f64) -> 
         Vec3::Z,
     )
 }
+/// Вычисляет размер погруженной части корпуса
+/// возвращает (dx, dy, dz)
+pub fn calculate_aabb(mesh: &TriMesh, center: Vec3, heel: f64, trim: f64, draught: f64) -> (f64, f64, f64) {
+    let isometry = position(&center, heel, trim, draught).inverse();
+    let local_point = isometry.transform_point(Vec3::ZERO); 
+    let local_normal = isometry.transform_vector(Vec3::Z).normalize(); 
+    let plane = Plane::from_point_and_normal(local_point, local_normal);
+    let sliced_mesh = plane.slice_mesh(mesh);
+    sliced_mesh.aabb()
+}
 
