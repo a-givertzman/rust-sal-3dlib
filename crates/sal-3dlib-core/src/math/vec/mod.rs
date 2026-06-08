@@ -3,9 +3,9 @@ pub mod integral_cotes;
 pub mod integral;
 
 #[allow(unused)]
-pub use integral_cotes::IntegralCotes as IntegralCotes;
+pub use integral_cotes::IntegralCotes;
 #[allow(unused)]
-pub use integral::Integral as Integral;
+pub use integral::Integral;
 use sal_core::error::Error;
 
 /// Сумма сверху: $res_i = res_{i-1} + src_i, res_0 = 0$
@@ -13,15 +13,16 @@ use sal_core::error::Error;
 /// # Example
 ///
 /// ```
-/// # #![allow(unused_mut)]
-/// let mut res: Vec<f64> = vec![1., 2., 3.].sum_above();
+/// use sal_3dlib_core::math::vec::SumAbove; // Импортируем трейт внутри теста
+///
+/// let res: Vec<f64> = vec![1., 2., 3.].sum_above();
 /// assert_eq!(res, vec![0., 1., 3., 6.,]);
 /// ```
 pub trait SumAbove<T> {
     fn sum_above(&self) -> Vec<T>;
 }
-//
-impl SumAbove<f64> for Vec<f64>  {
+
+impl SumAbove<f64> for Vec<f64> {
     fn sum_above(&self) -> Self {
         let mut data: Vec<f64> = vec![0.];
         let mut acc = 0.;
@@ -30,36 +31,39 @@ impl SumAbove<f64> for Vec<f64>  {
             data.push(acc);
         }
         data
-    }    
+    }
 }
+
 /// Сдвиг каждого элемента на значение: $src_i = src_i + value$
 ///
 /// # Example
 ///
 /// ```
-/// # #![allow(unused_mut)]
+/// use sal_3dlib_core::math::vec::Shift; // Импортируем трейт внутри теста
+///
 /// let mut vec: Vec<f64> = vec![1., 2., 3.];
 /// vec.shift(1.);
-/// assert_eq!(vec, vec![ 2., 3., 4.,]);
+/// assert_eq!(vec, vec![2., 3., 4.,]);
 /// ```
 pub trait Shift {
     #[allow(unused)]
     fn shift(&mut self, rhs: f64);
 }
 
-impl Shift for Vec<f64>  {
+impl Shift for Vec<f64> {
     fn shift(&mut self, rhs: f64) {
         self.iter_mut()
-        .for_each(|v| {*v += rhs;} )
-    }    
+            .for_each(|v| { *v += rhs; });
+    }
 }
-///
+
 /// Деление каждого элемента на значение: $src_i = src_i/value$
 ///
 /// # Example
 ///
 /// ```
-/// # #![allow(unused_mut)]
+/// use sal_3dlib_core::math::vec::DivideSingle; // Импортируем трейт внутри теста
+///
 /// let mut vec: Vec<f64> = vec![1., 2., 3.];
 /// vec.div_single(2.);
 /// assert_eq!(vec, vec![0.5, 1., 1.5,]);
@@ -68,20 +72,21 @@ pub trait DivideSingle {
     #[allow(unused)]
     fn div_single(&mut self, rhs: f64);
 }
-//
-impl DivideSingle for Vec<f64>  {
+
+impl DivideSingle for Vec<f64> {
     fn div_single(&mut self, rhs: f64) {
         self.iter_mut()
-        .for_each(|v| {*v /= rhs;} )
-    }    
+            .for_each(|v| { *v /= rhs; });
+    }
 }
-///
+
 /// Умножение каждого элемента на значение: $src_i = src_i * value$
 ///
 /// # Example
 ///
 /// ```
-/// # #![allow(unused_mut)]
+/// use sal_3dlib_core::math::vec::MultipleSingle; // Импортируем трейт внутри теста
+///
 /// let mut vec: Vec<f64> = vec![1., 2., 3.];
 /// vec.mul_single(2.);
 /// assert_eq!(vec, vec![2., 4., 6.,]);
@@ -89,137 +94,130 @@ impl DivideSingle for Vec<f64>  {
 pub trait MultipleSingle {
     fn mul_single(&mut self, rhs: f64);
 }
-//
-impl MultipleSingle for Vec<f64>  {
+
+impl MultipleSingle for Vec<f64> {
     fn mul_single(&mut self, rhs: f64) {
         self.iter_mut()
-        .for_each(|v| {*v *= rhs;} )
-    }    
+            .for_each(|v| { *v *= rhs; });
+    }
 }
-///
+
 /// Попарное сложение элементов векторов: $src1_i = src1_i + src2_i$
 ///
 /// # Example
 ///
 /// ```
-/// # #![allow(unused_mut)]
+/// use sal_3dlib_core::math::vec::AddVec; // Импортируем трейт внутри теста
+///
 /// let mut vec: Vec<f64> = vec![1., 2., 3.];
-/// vec.add_vec(vec![3., 4., 5.]);
+/// // Передаем по ссылке, как указано в сигнатуре трейта
+/// vec.add_vec(&vec![3., 4., 5.]).unwrap(); 
 /// assert_eq!(vec, vec![4., 6., 8.,]);
 /// ```
 pub trait AddVec {
     #[allow(unused)]
     fn add_vec(&mut self, rhs: &Self) -> Result<(), Error>;
 }
-//
-impl AddVec for Vec<f64>  { 
-    #[inline(never)]  
+
+impl AddVec for Vec<f64> {
+    #[inline(never)]
     fn add_vec(&mut self, rhs: &Self) -> Result<(), Error> {
         if self.len() != rhs.len() {
             return Err(Error::new("AddVec", "add_vec").err("self.len() != rhs.len()"));
-        } 
+        }
+
         self.iter_mut()
             .zip(rhs)
-            .for_each(|(v1, v2)| *v1 += v2 );
+            .for_each(|(v1, v2)| *v1 += v2);
         Ok(())
-    }    
+    }
 }
-///
+
 /// Попарное вычитание элементов векторов: $src1_i = src1_i - src2_i$
 ///
 /// # Example
 ///
 /// ```
-/// # #![allow(unused_mut)]
+/// use sal_3dlib_core::math::vec::SubVec; // Импортируем трейт внутри теста
+///
 /// let mut vec: Vec<f64> = vec![1., 2., 3.];
-/// vec.sub_vec(vec![3., 4., 5.]);
+/// vec.sub_vec(&vec![3., 4., 5.]).unwrap();
 /// assert_eq!(vec, vec![-2., -2., -2.,]);
 /// ```
 pub trait SubVec {
     fn sub_vec(&mut self, rhs: &Self) -> Result<(), Error>;
 }
-//
-impl SubVec for Vec<f64>  {   
-    #[inline(never)]    
+
+impl SubVec for Vec<f64> {
+    #[inline(never)]
     fn sub_vec(&mut self, rhs: &Self) -> Result<(), Error> {
         if self.len() != rhs.len() {
             return Err(Error::new("SubVec", "sub_vec").err("self.len() != rhs.len()"));
-        } 
+        }
+
         self.iter_mut()
             .zip(rhs)
-            .for_each(|(v1, v2)| *v1 -= v2 );
+            .for_each(|(v1, v2)| *v1 -= v2);
         Ok(())
-    }    
+    }
 }
-///
+
 /// Попарное умножение элементов векторов: $src1_i = src1_i * src2_i$
 ///
 /// # Example
 ///
 /// ```
-/// # #![allow(unused_mut)]
+/// use sal_3dlib_core::math::vec::MultipleVec; // Импортируем трейт внутри теста
+///
 /// let mut vec: Vec<f64> = vec![1., 2., 3.];
-/// vec.mul_vec(vec![3., 4., 5.]);
+/// vec.mul_vec(&vec![3., 4., 5.]).unwrap();
 /// assert_eq!(vec, vec![3., 8., 15.,]);
 /// ```
 pub trait MultipleVec {
     #[allow(unused)]
     fn mul_vec(&mut self, rhs: &Self) -> Result<(), Error>;
 }
-//
-impl MultipleVec for Vec<f64>  {  
-    #[inline(never)] 
+
+impl MultipleVec for Vec<f64> {
+    #[inline(never)]
     fn mul_vec(&mut self, rhs: &Self) -> Result<(), Error> {
         if self.len() != rhs.len() {
             return Err(Error::new("MultipleVec", "mul_vec").err("self.len() != rhs.len()"));
-        } 
+        }
+
         self.iter_mut()
             .zip(rhs)
-            .for_each(|(v1, v2)| *v1 *= v2 );
+            .for_each(|(v1, v2)| *v1 *= v2);
         Ok(())
-    }    
+    }
 }
-///
+
 /// Попарное деление элементов векторов: $src1_i = src1_i/src2_i$
 ///
 /// # Example
 ///
 /// ```
-/// # #![allow(unused_mut)]
+/// use sal_3dlib_core::math::vec::DivideVec; // Импортируем трейт внутри теста
+///
 /// let mut vec: Vec<f64> = vec![2., 4., 6.];
-/// vec.div_vec(vec![1., 2., 3.]);
+/// vec.div_vec(&vec![1., 2., 3.]).unwrap();
 /// assert_eq!(vec, vec![2., 2., 2.,]);
 /// ```
 pub trait DivideVec {
     #[allow(unused)]
     fn div_vec(&mut self, rhs: &[f64]) -> Result<(), Error>;
 }
-//
-impl DivideVec for Vec<f64>  {   
+
+impl DivideVec for Vec<f64> {
     #[inline(never)]
     fn div_vec(&mut self, rhs: &[f64]) -> Result<(), Error> {
         if self.len() != rhs.len() {
             return Err(Error::new("DivideVec", "div_vec").err("self.len() != rhs.len()"));
-        } 
+        }
+
         self.iter_mut()
             .zip(rhs)
-            .for_each(|(v1, v2)| *v1 /= v2 );
+            .for_each(|(v1, v2)| *v1 /= v2);
         Ok(())
-    }    
+    }
 }
-/*
-//
-pub trait SortVec {
-    #[allow(unused)]
-    fn sort(&mut self);
-}
-//
-impl SortVec for Vec<f64>  {   
-    fn sort(&mut self) {
-        self.sort_by(|a, b| a.partial_cmp(&b).unwrap())
-    }    
-}
-    */
-
-
-

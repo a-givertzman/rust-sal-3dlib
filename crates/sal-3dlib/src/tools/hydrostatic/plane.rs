@@ -1,37 +1,37 @@
 use super::SlicedMesh;
 use parry3d_f64::{math::*, shape::TriMesh};
 
-#[derive(Clone)]
-/// Секущая плоскость: (n, p) = d
+#[derive(Clone, Debug)]
 pub struct Plane {
     pub normal: Vec3,
-    pub d: f64, // Расстояние от начала координат вдоль нормали
+    pub d: f64,
 }
-//
+
+/// Результат сечения 3D-геометрии плоскостью, спроецированный в 2D-координаты
+#[derive(Clone, Debug)]
+pub struct PlanarSection2D {
+    /// Отрезки в локальных координатах (u, v) плоскости
+    pub edges: Vec<[[f64; 2]; 2]>,
+    /// Границы сечения в локальных координатах: ((min_u, min_v), (max_u, max_v))
+    pub bounds: ((f64, f64), (f64, f64)),
+}
+
 impl Plane {
-    /// Создает плоскость из нормали и точки на плоскости
     pub fn from_point_and_normal(point: Vec3, normal: Vec3) -> Self {
         let normal = normal.normalize();
         let d = normal.dot(point);
-        // Считаем скалярное произведение вручную
-        // let d = normal.x * point.x + normal.y * point.y + normal.z * point.z;
         Self { normal, d }
     }
-    /// Знаковое расстояние от точки до плоскости
+
     #[inline(always)]
     pub fn distance(&self, point: &Vec3) -> f64 {
         self.normal.dot(*point) - self.d
     }
-    ///
-    /// Функция, которая принимает TriMesh из parry и сечет ее плоскостью.
-    /// Мы будем сохранять только те части треугольников, которые находятся «под» плоскостью (d≤0),
-    /// что типично для задачи расчета погруженного объема судна.
-    /// Также мы соберем отрезки, лежащие на самой секущей плоскости (периметр сечения).
+
     pub fn slice_mesh(&self, mesh: &TriMesh) -> SlicedMesh {
         let vertices = mesh.vertices();
         let indices = mesh.indices();
 
-        // Предварительный расчет расстояний
         let distances: Vec<f64> = vertices
             .iter()
             .map(|v| self.distance(&Vec3::new(v.x, v.y, v.z)))
@@ -54,44 +54,32 @@ impl Plane {
 
             match above_count {
                 0 => {
-                    // Полностью под водой
                     submerged_triangles.push([v[0], v[1], v[2]]);
                 }
-                3 => {
-                    // Полностью над водой — игнорируем
-                }
+                3 => {}
                 1 => {
-                    // Одна вершина над водой. Ищем её индекс.
                     let i0 = above_mask.iter().position(|&a| a).unwrap();
                     let i1 = (i0 + 1) % 3;
                     let i2 = (i0 + 2) % 3;
 
-                    // Точки пересечения на ребрах, выходящих из i0
                     let p1 = intersect_edge(&v[i0], &v[i1], d[i0], d[i1]);
                     let p2 = intersect_edge(&v[i0], &v[i2], d[i0], d[i2]);
 
-                    // Оставшаяся под водой часть — четырехугольник (v[i1], v[i2], p2, p1)
-                    // Разбиваем на два треугольника, сохраняя порядок обхода (i1 -> i2 -> p2 -> p1)
                     submerged_triangles.push([v[i1], v[i2], p1]);
                     submerged_triangles.push([v[i2], p2, p1]);
 
-                    // Ребро ватерлинии: от p1 к p2 (согласовано с обходом)
                     waterline_edges.push([p1, p2]);
                 }
                 2 => {
-                    // Две вершины над водой, одна под. Ищем индекс той, что ПОД.
                     let i0 = above_mask.iter().position(|&a| !a).unwrap();
                     let i1 = (i0 + 1) % 3;
                     let i2 = (i0 + 2) % 3;
 
-                    // Точки пересечения на ребрах, выходящих из i0
                     let p1 = intersect_edge(&v[i0], &v[i1], d[i0], d[i1]);
                     let p2 = intersect_edge(&v[i0], &v[i2], d[i0], d[i2]);
 
-                    // Один треугольник под водой: (v[i0], p1, p2)
                     submerged_triangles.push([v[i0], p1, p2]);
 
-                    // Ребро ватерлинии: от p2 к p1 (согласовано с обходом)
                     waterline_edges.push([p2, p1]);
                 }
                 _ => unreachable!(),
@@ -103,22 +91,106 @@ impl Plane {
             waterline_edges,
         }
     }
+
+    /// Сечет массив 3D-треугольников и проецирует отрезки пересечения в локальные 2D-координаты (u, v)
+    pub fn slice_triangles(&self, triangles: &[[Vec3; 3]], u_axis: Vec3, v_axis: Vec3) -> PlanarSection2D {
+        let mut edges = Vec::new();
+        let mut min_u = f64::MAX; let mut min_v = f64::MAX;
+        let mut max_u = f64::MIN; let mut max_v = f64::MIN;
+
+        let project = |p: Vec3| [p.dot(u_axis), p.dot(v_axis)];
+
+        let mut update_bounds = |u: f64, v: f64| {
+            if u < min_u { min_u = u; } if u > max_u { max_u = u; }
+            if v < min_v { min_v = v; } if v > max_v { max_v = v; }
+        };
+
+        for tri in triangles {
+            let d = [self.distance(&tri[0]), self.distance(&tri[1]), self.distance(&tri[2])];
+            let above_mask = [d[0] > 0.0, d[1] > 0.0, d[2] > 0.0];
+            let above_count = above_mask.iter().filter(|&&a| a).count();
+
+            if above_count == 0 || above_count == 3 {
+                continue;
+            }
+
+            let (p1_3d, p2_3d) = if above_count == 1 {
+                let i0 = above_mask.iter().position(|&a| a).unwrap();
+                let i1 = (i0 + 1) % 3;
+                let i2 = (i0 + 2) % 3;
+                (intersect_edge(&tri[i0], &tri[i1], d[i0], d[i1]), intersect_edge(&tri[i0], &tri[i2], d[i0], d[i2]))
+            } else {
+                let i0 = above_mask.iter().position(|&a| !a).unwrap();
+                let i1 = (i0 + 1) % 3;
+                let i2 = (i0 + 2) % 3;
+                (intersect_edge(&tri[i0], &tri[i2], d[i0], d[i2]), intersect_edge(&tri[i0], &tri[i1], d[i0], d[i1]))
+            };
+
+            let uv1 = project(p1_3d);
+            let uv2 = project(p2_3d);
+
+            update_bounds(uv1[0], uv1[1]);
+            update_bounds(uv2[0], uv2[1]);
+
+            edges.push([uv1, uv2]);
+        }
+
+        PlanarSection2D {
+            edges,
+            bounds: if min_u == f64::MAX { ((0., 0.), (0., 0.)) } else { ((min_u, min_v), (max_u, max_v)) },
+        }
+    }
 }
 
-///
-/// Математика пересечения ребра $V_a V_b$ с плоскостью использует линейную интерполяцию.
-/// Если $d_a$ и $d_b$ — расстояния от вершин до плоскости, то точка пересечения $I$ вычисляется как:
-/// ```ignore
-/// $$I = V_a + \frac{d_a}{d_a - d_b} (V_b - V_a)$$
-/// ```
 #[inline(always)]
-fn intersect_edge(a: &Vec3, b: &Vec3, d_a: f64, d_b: f64) -> Vec3 {
-    // Доля пути от 'a' до 'b', где расстояние становится равным 0
+pub fn intersect_edge(a: &Vec3, b: &Vec3, d_a: f64, d_b: f64) -> Vec3 {
     let denom = d_a - d_b;
     if denom.abs() < 1e-8 {
-        return *a; // Разница слишком мала, точки практически в одном месте
+        return *a;
     }
     let t = d_a / denom;
-    // let t = d_a / (d_a - d_b);
     a + (b - a) * t
+}
+
+impl PlanarSection2D {
+    pub fn calculate_area(&self) -> f64 {
+        if self.edges.is_empty() {
+            return 0.0;
+        }
+        
+        let mut total_area = 0.0;
+        
+        for edge in &self.edges {
+            let p1 = edge[0]; // [u1, v1]
+            let p2 = edge[1]; // [u2, v2]
+            
+            // Вертикальный шаг отрезка шпангоута (высота полосы по оси V / Z)
+            let delta_v = p1[1] - p2[1];
+            
+            // Средняя ширина этого участка шпангоута по оси U (ось Y судна).
+            // Берем модуль координат, чтобы левый (+Y) и правый (-Y) борт давали 
+            // исключительно положительный вклад в ширину и не вычитались!
+            let avg_u = (p1[0].abs() + p2[0].abs()) * 0.5;
+            
+            // Площадь элементарной трапеции, образуемой отрезком борта с диаметральной плоскостью (U=0)
+            let strip_area = avg_u * delta_v;
+            
+            // Суммируем абсолютное значение площади полосы
+            total_area += strip_area.abs();
+        }
+        
+        // Так как каждый отрезок борта (и левого, и правого) мы спроецировали на диаметральную плоскость U=0,
+        // сумма total_area — это уже чистая суммарная площадь обеих половин шпангоута.
+        // Никаких дополнительных делений на 2.0 здесь делать не нужно!
+        total_area
+    }
+    //
+    pub fn size(&self) -> (f64, f64) {
+        let ((min_u, min_v), (max_u, max_v)) = self.bounds;
+        if min_u == f64::MAX {
+            (0.0, 0.0)
+        } else {
+            (max_u - min_u, max_v - min_v)
+        }
+    }
 }

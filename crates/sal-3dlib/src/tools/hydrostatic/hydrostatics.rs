@@ -1,8 +1,7 @@
 use parry3d_f64::math::Vec3;
 
-
-///
 /// Объем погруженной части (Водоизмещение) и Центр величины (Center of Buoyancy - LCB, TCB, VCB)
+#[derive(Debug, Clone, Copy)]
 pub struct Hydrostatics {
     /// Объем погруженной части (Водоизмещение)
     pub volume: f64,

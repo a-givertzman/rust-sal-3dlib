@@ -421,3 +421,66 @@ fn hydrostatic_waterline_size_sofia2() {
         println!("{:.3}: dx:{:.3} dy:{:.3}", draught, dx, dy,);
     }
 }
+
+#[test]
+fn hydrostatic_cross_sections_sofia() {
+    let dbg = Dbg::new("test", "hydrostatic_cross_sections_sofia");
+    let path = "src/tests/assets/hull.stl";
+    let mesh = load(Path::new(path), 1000.).unwrap();
+    let dx = 65.25;
+
+    // Фиксируем посадку судна для проверки строевой по шпангоутам
+    let heel = 0.0;
+    let trim = 0.0;
+    let draught = 5.0; // Осадка 5 метров
+
+    let isometry = position(&Vec3::new(dx, 0., 0.), heel, trim, draught).inverse();
+    let local_point = isometry.transform_point(Vec3::ZERO); 
+    let local_normal = isometry.transform_vector(Vec3::Z).normalize(); 
+    let plane = Plane::from_point_and_normal(local_point, local_normal);
+    let sliced_mesh = plane.slice_mesh(&mesh);
+
+    // Генерируем координаты шпангоутов вдоль оси X (например, от 0 до 140 метров с шагом 2 метра)
+    let step_size = 0.1;
+    let mut x = -3.6;
+    let x_max = 135.5;
+    let mut x_steps: Vec<_> = vec![];
+    while x <= x_max {
+        x_steps.push(x - dx);
+        x += step_size;
+    }
+
+    println!("\n--- Расчет теоретических шпангоутов (Draught: {}, Heel: {}, Trim: {}) ---", draught, heel, trim);
+    println!("X_coord\t\tArea (м²)\tWidth_B (м)\tHeight_T (м)");
+
+    let mut integrated_volume = 0.0;
+    let mut last_area = 0.0;
+
+    for (i, &x) in x_steps.iter().enumerate() {
+        // Вызываем добавленную функцию верхнего уровня
+        let (area, width, height) = calculate_cross_section_at(&sliced_mesh, isometry, x);
+        
+        if i % 100 == 0 {
+            println!("{:<12.2}\t{:<12.3}\t{:<12.3}\t{:<12.3}", x, area, width, height);
+        }
+
+        // Интегрируем площади шпангоутов по длине методом трапеций (Метод Кавальери)
+        if i > 0 {
+            integrated_volume += (last_area + area) * 0.5 * step_size;
+        }
+        last_area = area;
+    }
+
+    // Сверяем полученный объем с эталонным расчетом через тетраэдры Гаусса
+    let (mesh_volume, _) = calculate_hydrostatic(&mesh, Vec3::new(dx, 0., 0.), heel, trim, draught);
+    
+    println!("\n--- Верификация геометрии шпангоутов ---");
+    println!("Объем через 3D тетраэдры (Гаусс):       {:.3} м³", mesh_volume);
+    println!("Объем через 1D интеграл шпангоутов:     {:.3} м³", integrated_volume);
+    
+    let delta_percent = ((mesh_volume - integrated_volume).abs() * 100.0) / mesh_volume;
+    println!("Погрешность дискретизации:              {:.3}%", delta_percent);
+
+    // Погрешность для гладкого корпуса при шаге 2м не должна превышать 0.5-1%
+    assert!(delta_percent < 1.0, "Интеграл площадей шпангоутов разошелся с объемом сетки!");
+}
