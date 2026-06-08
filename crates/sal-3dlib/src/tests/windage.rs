@@ -1,4 +1,4 @@
-use crate::{load_stl, tools::*};
+use crate::{io::trimesh::*, tools::*};
 use parry3d_f64::math::Vec3;
 use sal_core::dbg::Dbg;
 use std::{path::Path, sync::Arc};
@@ -7,7 +7,7 @@ use std::{path::Path, sync::Arc};
 #[test]
 fn windage_interval_sofia() {
     let path = "src/tests/assets/hull.stl";
-    let mesh = load_stl(Path::new(path), 1000.).unwrap();
+    let mesh = load(Path::new(path), 1000.).unwrap();
     let target = [
         (5., 1236.268, 60.460, 10.873),
         (6., 1105.868, 59.704, 11.507),
@@ -40,7 +40,7 @@ fn windage_interval_sofia() {
 fn windage_triangles_sofia() {
     let scale = 0.001f64;
     let path = "src/tests/assets/hull.stl";
-    let mesh = load_stl(Path::new(path)).scaled(Vec3::new(scale, scale, scale));
+    let mesh = load(Path::new(path)).scaled(Vec3::new(scale, scale, scale));
     let target = [
         (5., 1236.268, 60.460, 10.873),
         (6., 1105.868, 59.704, 11.507),
@@ -69,7 +69,7 @@ fn windage_triangles_sofia() {
 fn windage_voxels_sofia() {
     let scale = 0.001f64;
     let path = "src/tests/assets/hull.stl";
-    let mesh = load_stl(Path::new(path)).scaled(Vec3::new(scale, scale, scale));
+    let mesh = load(Path::new(path)).scaled(Vec3::new(scale, scale, scale));
     let target = [
         (5., 1236.268, 60.460, 10.873),
         (6., 1105.868, 59.704, 11.507),
@@ -99,7 +99,7 @@ fn windage_voxels_sofia() {
 fn windage_edge_sofia() {
     let scale = 0.001f64;
     let path = "src/tests/assets/hull.stl";
-    let mesh = load_stl(Path::new(path)).scaled(Vec3::new(scale, scale, scale));
+    let mesh = load(Path::new(path)).scaled(Vec3::new(scale, scale, scale));
     let target = [
         (5., 1236.268, 60.460, 10.873),
         (6., 1105.868, 59.704, 11.507),
@@ -131,7 +131,7 @@ fn windage_sofia2() {
     let dbg = Dbg::new("test", "windage_sofia2");
     //   let path = "src/tests/assets/Sofiya_4work.stl";
     let path = "src/tests/assets/hull.stl";
-    let mesh = load_stl(Path::new(path), 1000.).unwrap();
+    let mesh = load(Path::new(path), 1000.).unwrap();
     let midel_dx = 65.25;
     let lbp = 130.5;
     let draught_min = 2.001;

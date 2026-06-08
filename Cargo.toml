@@ -17,6 +17,11 @@ testing = { git = "https://github.com/a-givertzman/rust-testing.git", tag = "0.1
 
 parry3d-f64 = "~0.26"
 baby_shark = "~0.3"
+truck-stepio = "~0.3"
+truck-meshalgo = "~0.4"
+truck-polymesh = "~0.6"
+truck-topology = "~0.6"
+truck-geometry = "~0.5"
 rustc-hash = "~2.1"
 splines = "~5.0"
 obj = "~0.10"

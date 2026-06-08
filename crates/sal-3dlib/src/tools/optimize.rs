@@ -6,7 +6,18 @@ use parry3d_f64::shape::{TriMesh, TriMeshFlags};
 use rustc_hash::{FxBuildHasher, FxHashMap};
 use sal_core::error::Error;
 
-pub fn optimize(mesh: &TriMesh, min_delta: f64) -> Result<TriMesh, Error> {
+
+pub fn optimize_binary_stl(mesh: &TriMesh, min_delta: f64) -> Result<TriMesh, Error> {
+    let mut mesh = trimesh_to_baby_shark(mesh);
+    let decimation_criteria = ConstantErrorDecimationCriteria::new(min_delta);
+    let mut decimator = EdgeDecimator::new()
+        .decimation_criteria(decimation_criteria)
+        .keep_boundary(true);
+    decimator.decimate(&mut mesh);
+    baby_shark_to_trimesh(&mesh)
+}
+
+pub fn optimize_trimesh(mesh: &TriMesh, min_delta: f64) -> Result<TriMesh, Error> {
     let mut mesh = trimesh_to_baby_shark(mesh);
     let decimation_criteria = ConstantErrorDecimationCriteria::new(min_delta);
     let mut decimator = EdgeDecimator::new()
