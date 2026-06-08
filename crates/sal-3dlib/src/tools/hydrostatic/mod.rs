@@ -94,16 +94,44 @@ pub fn position(center: &Vec3, heel: f64, trim: f64, draught: f64) -> Pose3 {
     let point = rotation * center_offset;
     Pose3::from_parts(-point, rotation)
 }
-/// Расчет площади и размеров сечения, возвращает [площадь, ширина, высота]
-pub fn calculate_cross_section_at(mesh: &SlicedMesh, mesh_isometry: Pose3, x_coord: f64) -> (f64, f64, f64) {
-    let local_section_point = mesh_isometry.transform_point(Vec3::new(x_coord, 0., 0.));
-    let local_section_normal = mesh_isometry.transform_vector(Vec3::X).normalize();
-    let local_section_plane = Plane::from_point_and_normal(local_section_point, local_section_normal);
+/// Вычисляет характеристики поперечного вертикального сечения (диаметральной плоскостью) погруженной части корпуса.
+/// `x_coord` — смещение от диаметральной плоскости (для ДП равен 0.0).
+/// возвращает [площадь, ширина, высота]
+pub fn calculate_cross_section_at(mesh: &SlicedMesh, isometry: Pose3, x_coord: f64) -> (f64, f64, f64) {
+    let local_point = isometry.transform_point(Vec3::ZERO); 
+    let local_normal = isometry.transform_vector(Vec3::Z).normalize(); 
+    let water_plane = Plane::from_point_and_normal(local_point, local_normal);
 
-    local_section_plane.compute_cross_section_properties(
+    let local_section_point = isometry.transform_point(Vec3::new(x_coord, 0., 0.));
+    let local_section_normal = isometry.transform_vector(Vec3::X).normalize();
+    let local_section_plane = Plane::from_point_and_normal(local_section_point, local_section_normal);
+    
+    // Проекция на плоскость из аргументов: ось U = Y (ширина), ось V = Z (высота шпангоута)
+    // Площадь соберется как (y1 - y2) * (z1 + z2) * 0.5
+    local_section_plane.compute_section_properties(
         &mesh.submerged_triangles, 
-        mesh_isometry.transform_vector(Vec3::Y).normalize(), 
-        mesh_isometry.transform_vector(Vec3::Z).normalize()
+        &water_plane,
+        isometry.transform_vector(Vec3::Y).normalize(), 
+        isometry.transform_vector(Vec3::Z).normalize()
+    )
+}
+/// Вычисляет характеристики продольного вертикального сечения (батокса) погруженной части корпуса.
+/// `y_coord` — смещение от диаметральной плоскости (для ДП равен 0.0).
+/// возвращает [площадь, длина, высота]
+pub fn calculate_buttock_at(mesh: &SlicedMesh, isometry: Pose3, y_coord: f64) -> (f64, f64, f64) {
+    let local_point = isometry.transform_point(Vec3::ZERO); 
+    let local_normal = isometry.transform_vector(Vec3::Z).normalize(); 
+    let water_plane = Plane::from_point_and_normal(local_point, local_normal);
+
+    let local_section_point = isometry.transform_point(Vec3::new(0., y_coord, 0.));
+    let local_section_normal = isometry.transform_vector(Vec3::Y).normalize();
+    let local_section_plane = Plane::from_point_and_normal(local_section_point, local_section_normal);
+    
+    local_section_plane.compute_section_properties(
+        &mesh.submerged_triangles, 
+        &water_plane, // Передаем плоскость воды
+        isometry.transform_vector(Vec3::X).normalize(), 
+        isometry.transform_vector(Vec3::Z).normalize()
     )
 }
 

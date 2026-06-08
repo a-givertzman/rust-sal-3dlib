@@ -484,3 +484,68 @@ fn hydrostatic_cross_sections_sofia() {
     // Погрешность для гладкого корпуса при шаге 2м не должна превышать 0.5-1%
     assert!(delta_percent < 1.0, "Интеграл площадей шпангоутов разошелся с объемом сетки!");
 }
+//
+#[test]
+fn hydrostatic_buttocks_sofia() {
+    let dbg = Dbg::new("test", "hydrostatic_buttocks_sofia");
+    let path = "src/tests/assets/hull.stl";
+    let mesh = load(Path::new(path), 1000.).unwrap();
+    let dx = 65.25;
+
+    // Фиксируем ту же посадку судна для проверки строевой по батоксам
+    let heel = 0.0;
+    let trim = 0.0;
+    let draught = 5.0; // Осадка 5 метров
+
+    let isometry = position(&Vec3::new(dx, 0., 0.), heel, trim, draught).inverse();
+    let local_point = isometry.transform_point(Vec3::ZERO); 
+    let local_normal = isometry.transform_vector(Vec3::Z).normalize(); 
+    let plane = Plane::from_point_and_normal(local_point, local_normal);
+    let sliced_mesh = plane.slice_mesh(&mesh);
+
+    // Генерируем координаты батоксов вдоль оси Y (от левого борта до правого)
+    // Шаг 0.05 м обеспечит идеальную точность трапеций для скругленной скулы
+    let step_size = 0.01;
+    let mut y = -8.;
+    let y_max = 8.;
+    let mut y_steps: Vec<_> = vec![];
+    while y <= y_max {
+        y_steps.push(y);
+        y += step_size;
+    }
+
+    println!("\n--- Расчет теоретических батоксов (Draught: {}, Heel: {}, Trim: {}) ---", draught, heel, trim);
+    println!("Y_coord\t\tArea (м²)\tLength_L (м)\tHeight_T (м)");
+
+    let mut integrated_volume = 0.0;
+    let mut last_area = 0.0;
+
+    for (i, &y) in y_steps.iter().enumerate() {
+        // Вызываем функцию расчета продольного сечения
+        let (area, length, height) = calculate_buttock_at(&sliced_mesh, isometry, y);
+        
+        // Выводим каждый 20-й батокс (шаг 1 метр) и диаметральную плоскость (Y = 0)
+        if i % 100 == 0 || y.abs() < 0.01 {
+            println!("{:<12.2}\t{:<12.3}\t{:<12.3}\t{:<12.3}", y, area, length, height);
+        }
+
+        // Интегрируем площади батоксов по ширине методом трапеций
+        if i > 0 {
+            integrated_volume += (last_area + area) * 0.5 * step_size;
+        }
+        last_area = area;
+    }
+
+    // Сверяем полученный объем с эталонным расчетом через тетраэдры Гаусса
+    let (mesh_volume, _) = calculate_hydrostatic(&mesh, Vec3::new(dx, 0., 0.), heel, trim, draught);
+    
+    println!("\n--- Верификация геометрии батоксов ---");
+    println!("Объем через 3D тетраэдры (Гаусс):       {:.3} м³", mesh_volume);
+    println!("Объем через 1D интеграл батоксов:       {:.3} м³", integrated_volume);
+    
+    let delta_percent = ((mesh_volume - integrated_volume).abs() * 100.0) / mesh_volume;
+    println!("Погрешность дискретизации:              {:.3}%", delta_percent);
+
+    // Проверяем схождение методов
+    assert!(delta_percent < 1.0, "Интеграл площадей батоксов разошелся с объемом сетки!");
+}
