@@ -95,18 +95,15 @@ pub fn position(center: &Vec3, heel: f64, trim: f64, draught: f64) -> Pose3 {
     Pose3::from_parts(-point, rotation)
 }
 
-pub fn calculate_cross_section_at(mesh: &SlicedMesh, isometry: Pose3, x_coord: f64) -> (f64, f64, f64) {
-    let local_section_point = isometry.transform_point(Vec3::new(x_coord, 0., 0.));
-    let local_section_normal = isometry.transform_vector(Vec3::X).normalize();
-
+pub fn calculate_cross_section_at(mesh: &SlicedMesh, mesh_isometry: Pose3, x_coord: f64) -> (f64, f64, f64) {
+    let local_section_point = mesh_isometry.transform_point(Vec3::new(x_coord, 0., 0.));
+    let local_section_normal = mesh_isometry.transform_vector(Vec3::X).normalize();
     let local_section_plane = Plane::from_point_and_normal(local_section_point, local_section_normal);
-    
-    let section_2d = local_section_plane.slice_triangles(
+
+    local_section_plane.compute_cross_section_properties(
         &mesh.submerged_triangles, 
-        isometry.transform_vector(Vec3::Y).normalize(), 
-        isometry.transform_vector(Vec3::Z).normalize()
-    );
-    
-    (section_2d.calculate_area(), section_2d.size().0, section_2d.size().1)
+        mesh_isometry.transform_vector(Vec3::Y).normalize(), 
+        mesh_isometry.transform_vector(Vec3::Z).normalize()
+    )
 }
 

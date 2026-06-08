@@ -140,6 +140,60 @@ impl Plane {
             bounds: if min_u == f64::MAX { ((0., 0.), (0., 0.)) } else { ((min_u, min_v), (max_u, max_v)) },
         }
     }
+    /// Оптимизированный безаллокационный расчет шпангоута. 
+    /// Работает за O(N) по времени и O(1) по памяти.
+    pub fn compute_cross_section_properties(&self, triangles: &[[Vec3; 3]], u_axis: Vec3, v_axis: Vec3) -> (f64, f64, f64) {
+        let mut total_area = 0.0;
+        let mut min_u = f64::MAX; let mut min_v = f64::MAX;
+        let mut max_u = f64::MIN; let mut max_v = f64::MIN;
+
+        // Инлайн-проекция точки
+        #[inline(always)]
+        fn project(p: Vec3, u_axis: Vec3, v_axis: Vec3) -> (f64, f64) {
+            (p.dot(u_axis), p.dot(v_axis))
+        }
+
+        for tri in triangles {
+            let d = [self.distance(&tri[0]), self.distance(&tri[1]), self.distance(&tri[2])];
+            let above_mask = [d[0] > 0.0, d[1] > 0.0, d[2] > 0.0];
+            let above_count = above_mask.iter().filter(|&&a| a).count();
+
+            if above_count == 0 || above_count == 3 {
+                continue;
+            }
+
+            let (p1_3d, p2_3d) = if above_count == 1 {
+                let i0 = above_mask.iter().position(|&a| a).unwrap();
+                let i1 = (i0 + 1) % 3;
+                let i2 = (i0 + 2) % 3;
+                (intersect_edge(&tri[i0], &tri[i1], d[i0], d[i1]), intersect_edge(&tri[i0], &tri[i2], d[i0], d[i2]))
+            } else {
+                let i0 = above_mask.iter().position(|&a| !a).unwrap();
+                let i1 = (i0 + 1) % 3;
+                let i2 = (i0 + 2) % 3;
+                (intersect_edge(&tri[i0], &tri[i2], d[i0], d[i2]), intersect_edge(&tri[i0], &tri[i1], d[i0], d[i1]))
+            };
+
+            let (u1, v1) = project(p1_3d, u_axis, v_axis);
+            let (u2, v2) = project(p2_3d, u_axis, v_axis);
+
+            // Обновляем границы "на лету"
+            if u1 < min_u { min_u = u1; } if u1 > max_u { max_u = u1; }
+            if v1 < min_v { min_v = v1; } if v1 > max_v { max_v = v1; }
+            if u2 < min_u { min_u = u2; } if u2 > max_u { max_u = u2; }
+            if v2 < min_v { min_v = v2; } if v2 > max_v { max_v = v2; }
+
+            // Считаем площадь методом полос "на лету"
+            let delta_v = v1 - v2;
+            let avg_u = (u1.abs() + u2.abs()) * 0.5;
+            total_area += (avg_u * delta_v).abs();
+        }
+
+        let width = if min_u == f64::MAX { 0.0 } else { max_u - min_u };
+        let height = if min_v == f64::MAX { 0.0 } else { max_v - min_v };
+
+        (total_area, width, height)
+    }    
 }
 
 #[inline(always)]
