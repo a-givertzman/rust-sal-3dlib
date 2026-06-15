@@ -132,4 +132,26 @@ pub fn calculate_aabb(mesh: &TriMesh, center: Vec3, heel: f64, trim: f64, draugh
     let sliced_mesh = plane.slice_mesh(mesh);
     sliced_mesh.aabb()
 }
+///
+/// Поиск пересечения плоскости и ломанной кривой, состоящей из отрезков
+/// на выходе вектор пересечений, пересечений может быть несколько
+/// если пересечений нет пустой вектор
+pub fn get_cross(point: Vec3, normal: Vec3, edges: &Vec<[Vec3; 2]>) -> Vec<Vec3> {
+    let mut intersections = Vec::new();
+    let normal_normalized = normal.normalize();
+    for edge in edges {
+        let p1 = edge[0];
+        let p2 = edge[1];
+        let direction = p2 - p1;
+        let dot_denominator = direction.dot(normal_normalized);
+        if dot_denominator.abs() > 1e-6 {
+            let t = (point - p1).dot(normal_normalized) / dot_denominator;
+            if (0.0..=1.0).contains(&t) {
+                let intersection_point = p1 + t * direction;
+                intersections.push(intersection_point);
+            }
+        }
+    }
+    intersections
+}
 

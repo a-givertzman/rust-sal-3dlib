@@ -1,6 +1,7 @@
 use baby_shark::algo::utils::min;
 use parry3d_f64::{glamx::prelude::Pose3, math::Vec3};
 use sal_core::dbg::Dbg;
+use truck_stepio::r#in::ruststep::itertools::Itertools;
 use std::path::Path;
 use crate::{io::trimesh::*, tests::local_cache::{DisplacementCache, LocalCache}, tools::*};
 
@@ -560,4 +561,18 @@ fn hydrostatic_aabb_sofia() {
 
     // Проверяем схождение методов
     assert!(delta_percent < 1.0, "расчет aabb разошелся с целевым!");
+}
+
+#[test]
+fn hydrostatic_cross_sofia() {
+    let path = "src/tests/assets/Sofiya_4work.stl";
+    let mesh = load(Path::new(path), 1000.).unwrap();
+    let x = 65.25;
+    let draught = 8.;    
+    let plane = Plane::from_point_and_normal(Vec3::new(0.0, 0.0, draught), Vec3::new(0.0, 0.0, 1.0));
+    let sliced = plane.slice_mesh(&mesh);
+    let res = get_cross(Vec3::new(x, 0.0, 0.0), Vec3::new(1.0, 0.0, 0.0), &sliced.waterline_edges);
+    let result = res.iter().map(|v| v.y).sorted_by(|a, b| PartialOrd::partial_cmp(&b, &a).unwrap()).next().unwrap();
+    let (_, target, _) = calculate_cross_section(&mesh, x, draught);
+    assert_eq!(result, target/2.);
 }
