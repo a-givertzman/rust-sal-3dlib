@@ -40,8 +40,9 @@ impl Plane {
 
         let mut submerged_triangles = Vec::with_capacity(indices.len());
         let mut waterline_edges = Vec::new();
-        let mut edge_intersection_cache: FxHashMap<(usize, usize), Vec3> = FxHashMap::with_hasher(Default::default());
-
+        let mut edge_intersection_cache: FxHashMap<(usize, usize), Vec3> =
+            FxHashMap::with_hasher(Default::default());
+        let mut visited_waterline_edges = std::collections::HashSet::new();
 
         for face in indices {
             let idx = [face[0] as usize, face[1] as usize, face[2] as usize];
@@ -61,45 +62,55 @@ impl Plane {
                     submerged_triangles.push([v[0], v[1], v[2]]);
                 }
                 3 => {}
-                 1 => {
-                let i0 = above_mask.iter().position(|&a| a).unwrap();
-                let i1 = (i0 + 1) % 3;
-                let i2 = (i0 + 2) % 3;
+                1 => {
+                    let i0 = above_mask.iter().position(|&a| a).unwrap();
+                    let i1 = (i0 + 1) % 3;
+                    let i2 = (i0 + 2) % 3;
 
-                let key1 = (idx[i0].min(idx[i1]), idx[i0].max(idx[i1]));
-                let p1 = *edge_intersection_cache.entry(key1).or_insert_with(|| {
-                    intersect_edge(&v[i0], &v[i1], d[i0], d[i1])
-                });
+                    let key1 = (idx[i0].min(idx[i1]), idx[i0].max(idx[i1]));
+                    let key2 = (idx[i0].min(idx[i2]), idx[i0].max(idx[i2]));
 
-                let key2 = (idx[i0].min(idx[i2]), idx[i0].max(idx[i2]));
-                let p2 = *edge_intersection_cache.entry(key2).or_insert_with(|| {
-                    intersect_edge(&v[i0], &v[i2], d[i0], d[i2])
-                });
+                    let p1 = *edge_intersection_cache
+                        .entry(key1)
+                        .or_insert_with(|| intersect_edge(&v[i0], &v[i1], d[i0], d[i1]));
+                    
+                    let p2 = *edge_intersection_cache
+                        .entry(key2)
+                        .or_insert_with(|| intersect_edge(&v[i0], &v[i2], d[i0], d[i2]));
 
-                submerged_triangles.push([v[i1], v[i2], p1]);
-                submerged_triangles.push([v[i2], p2, p1]);
+                    submerged_triangles.push([v[i1], v[i2], p1]);
+                    submerged_triangles.push([v[i2], p2, p1]);
 
-                waterline_edges.push([p1, p2]);
-            }
-            2 => {
-                let i0 = above_mask.iter().position(|&a| !a).unwrap();
-                let i1 = (i0 + 1) % 3;
-                let i2 = (i0 + 2) % 3;
+                    let segment_key = (key1.min(key2), key1.max(key2));
+                
+                    // insert вернет true, если такого отрезка еще не было в векторе
+                    if visited_waterline_edges.insert(segment_key) {
+                        waterline_edges.push([p1, p2]);
+                    }
+                }
+                2 => {
+                    let i0 = above_mask.iter().position(|&a| !a).unwrap();
+                    let i1 = (i0 + 1) % 3;
+                    let i2 = (i0 + 2) % 3;
 
-                let key1 = (idx[i0].min(idx[i1]), idx[i0].max(idx[i1]));
-                let p1 = *edge_intersection_cache.entry(key1).or_insert_with(|| {
-                    intersect_edge(&v[i0], &v[i1], d[i0], d[i1])
-                });
+                    let key1 = (idx[i0].min(idx[i1]), idx[i0].max(idx[i1]));
+                    let key2 = (idx[i0].min(idx[i2]), idx[i0].max(idx[i2]));
 
-                let key2 = (idx[i0].min(idx[i2]), idx[i0].max(idx[i2]));
-                let p2 = *edge_intersection_cache.entry(key2).or_insert_with(|| {
-                    intersect_edge(&v[i0], &v[i2], d[i0], d[i2])
-                });
+                    let p1 = *edge_intersection_cache
+                        .entry(key1)
+                        .or_insert_with(|| intersect_edge(&v[i0], &v[i1], d[i0], d[i1]));                   
+                    let p2 = *edge_intersection_cache
+                        .entry(key2)
+                        .or_insert_with(|| intersect_edge(&v[i0], &v[i2], d[i0], d[i2]));
 
-                submerged_triangles.push([v[i0], p1, p2]);
+                    submerged_triangles.push([v[i0], p1, p2]);
 
-                waterline_edges.push([p2, p1]);
-            }
+                    let segment_key = (key1.min(key2), key1.max(key2));
+                    
+                    if visited_waterline_edges.insert(segment_key) {
+                        waterline_edges.push([p2, p1]);
+                    }
+                }
                 _ => unreachable!(),
             }
         }
