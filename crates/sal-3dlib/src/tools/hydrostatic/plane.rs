@@ -1,5 +1,6 @@
 use super::SlicedMesh;
 use parry3d_f64::{math::*, shape::TriMesh};
+use rustc_hash::FxHashMap;
 
 #[derive(Clone, Debug)]
 pub struct Plane {
@@ -39,9 +40,12 @@ impl Plane {
 
         let mut submerged_triangles = Vec::with_capacity(indices.len());
         let mut waterline_edges = Vec::new();
+        let mut edge_intersection_cache: FxHashMap<(usize, usize), Vec3> = FxHashMap::with_hasher(Default::default());
+
 
         for face in indices {
             let idx = [face[0] as usize, face[1] as usize, face[2] as usize];
+
             let d = [distances[idx[0]], distances[idx[1]], distances[idx[2]]];
             let v = [
                 Vec3::new(vertices[idx[0]].x, vertices[idx[0]].y, vertices[idx[0]].z),
@@ -49,7 +53,7 @@ impl Plane {
                 Vec3::new(vertices[idx[2]].x, vertices[idx[2]].y, vertices[idx[2]].z),
             ];
 
-            let above_mask = [d[0] > 0.0, d[1] > 0.0, d[2] > 0.0];
+            let above_mask = [d[0] > 1e-7, d[1] > 1e-7, d[2] > 1e-7];
             let above_count = above_mask.iter().filter(|&&a| a).count();
 
             match above_count {
@@ -57,31 +61,45 @@ impl Plane {
                     submerged_triangles.push([v[0], v[1], v[2]]);
                 }
                 3 => {}
-                1 => {
-                    let i0 = above_mask.iter().position(|&a| a).unwrap();
-                    let i1 = (i0 + 1) % 3;
-                    let i2 = (i0 + 2) % 3;
+                 1 => {
+                let i0 = above_mask.iter().position(|&a| a).unwrap();
+                let i1 = (i0 + 1) % 3;
+                let i2 = (i0 + 2) % 3;
 
-                    let p1 = intersect_edge(&v[i0], &v[i1], d[i0], d[i1]);
-                    let p2 = intersect_edge(&v[i0], &v[i2], d[i0], d[i2]);
+                let key1 = (idx[i0].min(idx[i1]), idx[i0].max(idx[i1]));
+                let p1 = *edge_intersection_cache.entry(key1).or_insert_with(|| {
+                    intersect_edge(&v[i0], &v[i1], d[i0], d[i1])
+                });
 
-                    submerged_triangles.push([v[i1], v[i2], p1]);
-                    submerged_triangles.push([v[i2], p2, p1]);
+                let key2 = (idx[i0].min(idx[i2]), idx[i0].max(idx[i2]));
+                let p2 = *edge_intersection_cache.entry(key2).or_insert_with(|| {
+                    intersect_edge(&v[i0], &v[i2], d[i0], d[i2])
+                });
 
-                    waterline_edges.push([p1, p2]);
-                }
-                2 => {
-                    let i0 = above_mask.iter().position(|&a| !a).unwrap();
-                    let i1 = (i0 + 1) % 3;
-                    let i2 = (i0 + 2) % 3;
+                submerged_triangles.push([v[i1], v[i2], p1]);
+                submerged_triangles.push([v[i2], p2, p1]);
 
-                    let p1 = intersect_edge(&v[i0], &v[i1], d[i0], d[i1]);
-                    let p2 = intersect_edge(&v[i0], &v[i2], d[i0], d[i2]);
+                waterline_edges.push([p1, p2]);
+            }
+            2 => {
+                let i0 = above_mask.iter().position(|&a| !a).unwrap();
+                let i1 = (i0 + 1) % 3;
+                let i2 = (i0 + 2) % 3;
 
-                    submerged_triangles.push([v[i0], p1, p2]);
+                let key1 = (idx[i0].min(idx[i1]), idx[i0].max(idx[i1]));
+                let p1 = *edge_intersection_cache.entry(key1).or_insert_with(|| {
+                    intersect_edge(&v[i0], &v[i1], d[i0], d[i1])
+                });
 
-                    waterline_edges.push([p2, p1]);
-                }
+                let key2 = (idx[i0].min(idx[i2]), idx[i0].max(idx[i2]));
+                let p2 = *edge_intersection_cache.entry(key2).or_insert_with(|| {
+                    intersect_edge(&v[i0], &v[i2], d[i0], d[i2])
+                });
+
+                submerged_triangles.push([v[i0], p1, p2]);
+
+                waterline_edges.push([p2, p1]);
+            }
                 _ => unreachable!(),
             }
         }
