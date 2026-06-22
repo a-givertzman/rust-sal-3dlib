@@ -146,12 +146,20 @@ pub fn get_cross(point: Vec3, normal: Vec3, edges: &Vec<[Vec3; 2]>) -> Vec<Vec3>
         let dot_denominator = direction.dot(normal_normalized);
         if dot_denominator.abs() > 1e-6 {
             let t = (point - p1).dot(normal_normalized) / dot_denominator;
-            if (0.0..=1.0).contains(&t) {
+            if (0.0..1.0).contains(&t) {
                 let intersection_point = p1 + t * direction;
                 intersections.push(intersection_point);
             }
+        } else {
+            let distance = (p1 - point).dot(normal_normalized);
+            if distance.abs() < 1e-6 {
+                intersections.push(p1);
+            }
         }
     }
+    intersections.dedup_by(|a, b| a.abs_diff_eq(*b, 1e-6));
+
     intersections
 }
+
 
