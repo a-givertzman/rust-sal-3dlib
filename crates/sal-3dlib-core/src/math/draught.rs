@@ -32,4 +32,19 @@ impl Draught {
       //  println!("p:{} d_zi:{d_zi} z_fix:{z_fix}", p.print());
         self.draught_mid + d_zi
     }
+    // Осадна на носовом перпендикуляре
+    pub fn bow(&self, length_lbp: f64) -> f64 {
+        let p = Position::new(length_lbp, 0.0, -self.draught_mid);
+        self.value(&p)
+    } 
+    // Осадна на кормовом перпендикуляре
+    pub fn stern(&self) -> f64 {
+        let p = Position::new(0.0, 0.0, -self.draught_mid);
+        self.value(&p)
+    }
+    // Средняя осадка
+    pub fn mean(&self, waterline_x: f64, waterline_y: f64) -> f64 {
+        let p = Position::new(waterline_x, waterline_y, -self.draught_mid);
+        self.value(&p)
+    }  
 }
