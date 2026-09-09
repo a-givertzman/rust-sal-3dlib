@@ -10,9 +10,9 @@ use sal_core::error::Error;
 /// # Example
 ///
 /// ```
-/// # #![allow(unused_mut)]
-/// let mut res: Vec<f64> = vec![(1.,1.), (2. ,2.), (3., 3.)].integral();
-/// assert_eq!(res, 4);
+/// use sal_3dlib_core::math::Integral; 
+/// let mut res = vec![(1.,1.), (2. ,2.), (3., 3.)].integral().unwrap();
+/// assert_eq!(res, 4.);
 /// ```
 pub trait Integral {
     #[allow(unused)]

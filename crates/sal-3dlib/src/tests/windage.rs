@@ -21,14 +21,14 @@ fn windage_interval_sofia() {
     let draught_min = 2.001;
     let windage = WindageProfile::new(Arc::new(mesh), midel_dx, draught_min, lbp, 10000);
     for (draught, target_area, target_sx, target_sz) in &target {
-        let (res_area_full, mx, mz, _) = windage.calculate_area(*draught, 0.);
-        let res_sx = mx/res_area_full;
-        let res_sz = mz/res_area_full; 
+        let (area, _) = windage.calculate_area(*draught, 0.);
+        let res_sx = area.center_x;
+        let res_sz = area.center_z; 
         let res_area_array: f64 = windage.calculate_area_array(*draught, 0.).iter().sum();
         println!(
             "draught:{:.3} area:({:.3} {:.3} {:.3}): sx:({:.3} {:.3} {:.3}) sz:({:.3} {:.3} {:.3})",
             draught, 
-            target_area, res_area_full, res_area_array, 
+            target_area, area.area, res_area_array, 
             target_sx, res_sx, target_sx - res_sx,
             target_sz, res_sz, target_sz - res_sz,
         );
@@ -138,17 +138,19 @@ fn windage_sofia2() {
     let windage = WindageProfile::new(Arc::new(mesh), midel_dx, draught_min, lbp, 10000);
     let draught_steps: Vec<_> = (2..=18).map(|v| (v as f64) * 0.5).collect();
     for &draught in &draught_steps {
-        let (area, mx, mz, az) = windage.calculate_area(draught, 0.);
+        let (area, sub_area) = windage.calculate_area(draught, 0.);
         let bow = windage.bow_area(draught, 0.).unwrap();
         println!(
-            "{:.3}: az:{:.3} area:{:.3} sx:{:.3} mx:{:.3} sz:{:.3} mz:{:.3} bow:{:.3}",
+            "{:.3}: area:{:.3} sx:{:.3} mx:{:.3} sz:{:.3} mz:{:.3}  sub_area:{:.3} sx:{:.3} sz:{:.3} bow:{:.3}",
             draught,
-            az,
-            area,
-            mx / area,
-            mx,
-            mz / area,
-            mz,
+            area.area,
+            area.center_x,
+            area.center_x*area.area,
+            area.center_z,
+            area.center_z*area.area,
+            sub_area.area, 
+            sub_area.center_x,
+            sub_area.center_z,
             bow
         );
     }

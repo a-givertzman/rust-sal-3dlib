@@ -1,5 +1,7 @@
-use parry3d_f64::math::Vec3;
+use baby_shark::algo::utils::min;
+use parry3d_f64::{glamx::prelude::Pose3, math::Vec3};
 use sal_core::dbg::Dbg;
+use truck_stepio::r#in::ruststep::itertools::Itertools;
 use std::path::Path;
 use crate::{io::trimesh::*, tests::local_cache::{DisplacementCache, LocalCache}, tools::*};
 
@@ -420,4 +422,157 @@ fn hydrostatic_waterline_size_sofia2() {
         let (dx, dy) = calculate_waterline_size(&mesh, draught);
         println!("{:.3}: dx:{:.3} dy:{:.3}", draught, dx, dy,);
     }
+}
+
+#[test]
+fn hydrostatic_cross_sections_sofia() {
+    let dbg = Dbg::new("test", "hydrostatic_cross_sections_sofia");
+    let path = "src/tests/assets/hull.stl";
+    let mesh = load(Path::new(path), 1000.).unwrap();
+    let dx = 65.25;
+    let draught = 5.0; // Осадка 5 метров
+
+    // Генерируем координаты шпангоутов вдоль оси X (например, от 0 до 140 метров с шагом 2 метра)
+    let step_size = 0.1;
+    let mut x = -3.6;
+    let x_max = 135.5;
+    let mut x_steps: Vec<_> = vec![];
+    while x <= x_max {
+        x_steps.push(x);
+        x += step_size;
+    }
+
+    println!("\n--- Расчет теоретических шпангоутов (Draught: {}) ---", draught);
+    println!("X_coord\t\tArea (м²)\tWidth_B (м)\tHeight_T (м)");
+
+    let mut integrated_volume = 0.0;
+    let mut last_area = 0.0;
+
+    for (i, &x) in x_steps.iter().enumerate() {
+        // Вызываем добавленную функцию верхнего уровня
+        let (area, width, height) = calculate_cross_section(&mesh, x, draught);
+        
+        if i % 100 == 0 {
+            println!("{:<12.2}\t{:<12.3}\t{:<12.3}\t{:<12.3}", x, area, width, height);
+        }
+
+        // Интегрируем площади шпангоутов по длине методом трапеций (Метод Кавальери)
+        if i > 0 {
+            integrated_volume += (last_area + area) * 0.5 * step_size;
+        }
+        last_area = area;
+    }
+
+    // Сверяем полученный объем с эталонным расчетом через тетраэдры Гаусса
+    let (mesh_volume, _) = calculate_hydrostatic(&mesh, Vec3::new(dx, 0., 0.), 0., 0., draught);
+    
+    println!("\n--- Верификация геометрии шпангоутов ---");
+    println!("Объем через 3D тетраэдры (Гаусс):       {:.3} м³", mesh_volume);
+    println!("Объем через 1D интеграл шпангоутов:     {:.3} м³", integrated_volume);
+    
+    let delta_percent = ((mesh_volume - integrated_volume).abs() * 100.0) / mesh_volume;
+    println!("Погрешность дискретизации:              {:.3}%", delta_percent);
+
+    // Погрешность для гладкого корпуса при шаге 2м не должна превышать 0.5-1%
+    assert!(delta_percent < 1.0, "Интеграл площадей шпангоутов разошелся с объемом сетки!");
+}
+//
+#[test]
+fn hydrostatic_buttocks_sofia() {
+    let dbg = Dbg::new("test", "hydrostatic_buttocks_sofia");
+    let path = "src/tests/assets/hull.stl";
+    let mesh = load(Path::new(path), 1000.).unwrap();
+    let dx = 65.25;
+    // Фиксируем ту же посадку судна для проверки строевой по батоксам
+    let draught = 5.0; // Осадка 5 метров
+
+    // Генерируем координаты батоксов вдоль оси Y (от левого борта до правого)
+    // Шаг 0.05 м обеспечит идеальную точность трапеций для скругленной скулы
+    let step_size = 0.01;
+    let mut y = -8.;
+    let y_max = 8.;
+    let mut y_steps: Vec<_> = vec![];
+    while y <= y_max {
+        y_steps.push(y);
+        y += step_size;
+    }
+
+    println!("\n--- Расчет теоретических батоксов (Draught: {}) ---", draught);
+    println!("Y_coord\t\tArea (м²)\tLength_L (м)\tHeight_T (м)");
+
+    let mut integrated_volume = 0.0;
+    let mut last_area = 0.0;
+
+    for (i, &y) in y_steps.iter().enumerate() {
+        // Вызываем функцию расчета продольного сечения
+        let (area, length, height) = calculate_buttock_section(&mesh,  y, draught);
+        
+        // Выводим каждый 20-й батокс (шаг 1 метр) и диаметральную плоскость (Y = 0)
+        if i % 100 == 0 || y.abs() < 0.01 {
+            println!("{:<12.2}\t{:<12.3}\t{:<12.3}\t{:<12.3}", y, area, length, height);
+        }
+
+        // Интегрируем площади батоксов по ширине методом трапеций
+        if i > 0 {
+            integrated_volume += (last_area + area) * 0.5 * step_size;
+        }
+        last_area = area;
+    }
+
+    // Сверяем полученный объем с эталонным расчетом через тетраэдры Гаусса
+    let (mesh_volume, _) = calculate_hydrostatic(&mesh, Vec3::new(dx, 0., 0.), 0., 0., draught);
+    
+    println!("\n--- Верификация геометрии батоксов ---");
+    println!("Объем через 3D тетраэдры (Гаусс):       {:.3} м³", mesh_volume);
+    println!("Объем через 1D интеграл батоксов:       {:.3} м³", integrated_volume);
+    
+    let delta_percent = ((mesh_volume - integrated_volume).abs() * 100.0) / mesh_volume;
+    println!("Погрешность дискретизации:              {:.3}%", delta_percent);
+
+    // Проверяем схождение методов
+    assert!(delta_percent < 1.0, "Интеграл площадей батоксов разошелся с объемом сетки!");
+}
+//
+#[test]
+fn hydrostatic_aabb_sofia() {
+    let path = "src/tests/assets/hull.stl";
+    let mesh = load(Path::new(path), 1000.).unwrap();
+    let pose = &parry3d_f64::math::Pose::identity();
+    let mesh = match mesh.split(pose, Vec3::Z, 5., 0.00001) {
+        parry3d_f64::query::SplitResult::Pair(lover, _) => lover,
+        parry3d_f64::query::SplitResult::Negative => panic!(),
+        parry3d_f64::query::SplitResult::Positive => panic!(),
+    };
+    let dx = 65.25;
+    let draught = 5.0; 
+    let (rdx, rdy, rdz) = calculate_aabb(&mesh, Vec3::new(dx, 0., 0.), 0., 0., draught);
+    let aabb = mesh.aabb(&parry3d_f64::math::Pose::identity());
+    let (tdx, tdy, tdz) = (aabb.maxs.x - aabb.mins.x, aabb.maxs.y - aabb.mins.y, aabb.maxs.z - aabb.mins.z);
+
+    println!("\n--- Верификация aabb ---");
+    println!("результат: {:.3} {:.3} {:.3} м", rdx, rdy, rdz);
+    println!("цель: {:.3} {:.3} {:.3} м", tdx, tdy, tdz);
+    
+    let delta_percent_x = ((tdx - rdx).abs() * 100.0) / tdx;
+    let delta_percent_y = ((tdx - rdx).abs() * 100.0) / tdx;
+    let delta_percent_z = ((tdx - rdx).abs() * 100.0) / tdx;
+    let delta_percent = delta_percent_x.max(delta_percent_y).max(delta_percent_z);
+    println!("Погрешность:  {:.3}%", delta_percent);
+
+    // Проверяем схождение методов
+    assert!(delta_percent < 1.0, "расчет aabb разошелся с целевым!");
+}
+
+#[test]
+fn hydrostatic_cross_sofia() {
+    let path = "src/tests/assets/Sofiya_4work.stl";
+    let mesh = load(Path::new(path), 1000.).unwrap();
+    let x = 65.25;
+    let draught = 8.;    
+    let plane = Plane::from_point_and_normal(Vec3::new(0.0, 0.0, draught), Vec3::new(0.0, 0.0, 1.0));
+    let sliced = plane.slice_mesh(&mesh);
+    let res = get_cross(Vec3::new(x, 0.0, 0.0), Vec3::new(1.0, 0.0, 0.0), &sliced.waterline_edges);
+    let result = res.iter().map(|v| v.y).sorted_by(|a, b| PartialOrd::partial_cmp(&b, &a).unwrap()).next().unwrap();
+    let (_, target, _) = calculate_cross_section(&mesh, x, draught);
+    assert_eq!(result, target/2.);
 }

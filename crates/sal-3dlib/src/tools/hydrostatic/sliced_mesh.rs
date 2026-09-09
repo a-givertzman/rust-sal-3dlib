@@ -2,44 +2,17 @@ use super::{Hydrostatics, Plane};
 use parry3d_f64::math::Vec3;
 
 pub struct SlicedMesh {
-    /// Треугольники, оказавшиеся под плоскостью (полезный объем)
+    /// Треугольники, оказавшиеся под плоскостью ватерлинии (погруженный объем)
     pub submerged_triangles: Vec<[Vec3; 3]>,
     /// Отрезки, формирующие контур сечения (ватерлинию)
     pub waterline_edges: Vec<[Vec3; 2]>,
 }
 
 impl SlicedMesh {
-    ///
-    /// Для замкнутого меша объем считается как сумма ориентированных объемов тетраэдров.
     pub fn volume(&self) -> f64 {
-        if self.submerged_triangles.is_empty() {
-            return 0.0;
-        }
-
-        // 1. Выбираем точку опоры (p_ref).
-        // Если есть ватерлиния, берем точку на ней.
-        // Если нет (меш полностью погружен и замкнут), берем любую вершину меша.
-        let p_ref = self
-            .waterline_edges
-            .first()
-            .map(|edge| edge[0])
-            .unwrap_or_else(|| self.submerged_triangles[0][0]);
-
-        let mut total_volume = 0.0;
-
-        // 2. Считаем сумму знаковых объемов тетраэдров относительно p_ref
-        for [p0, p1, p2] in &self.submerged_triangles {
-            let a = *p0 - p_ref;
-            let b = *p1 - p_ref;
-            let c = *p2 - p_ref;
-
-            // Смешанное произведение (triple product)
-            total_volume += a.dot(b.cross(c)) / 6.0;
-        }
-
-        total_volume.abs()
+        self.hydrostatics().volume
     }
-    //
+
     pub fn hydrostatics(&self) -> Hydrostatics {
         if self.submerged_triangles.is_empty() {
             return Hydrostatics {
@@ -51,66 +24,47 @@ impl SlicedMesh {
         let mut total_volume = 0.0;
         let mut sum_centroid = Vec3::ZERO;
 
-        // 1. Находим точку на плоскости, которая будет вершиной всех тетраэдров.
-        // Это гарантирует, что "крышка" (ватерлиния) имеет нулевой объем
-        // и не влияет на итоговую сумму.
-        // plane.d в вашей реализации — это normal.dot(point).
         let p_ref = self
             .waterline_edges
             .first()
             .map(|edge| edge[0])
             .unwrap_or_else(|| self.submerged_triangles.first().unwrap()[0]);
 
-        // 2. Интегрируем только погруженные треугольники корпуса
         for tri in &self.submerged_triangles {
             let p0 = tri[0];
             let p1 = tri[1];
             let p2 = tri[2];
 
-            // Векторы сторон тетраэдра относительно точки на плоскости воды
             let a = p0 - p_ref;
             let b = p1 - p_ref;
             let c = p2 - p_ref;
 
-            // Знаковый объем тетраэдра (смешанное произведение)
-            // 1/6 * |(a × b) · c|
             let v_i = a.dot(b.cross(c)) / 6.0;
-
             total_volume += v_i;
 
-            // Центроид тетраэдра: (p0 + p1 + p2 + p_ref) / 4
-            // Взвешиваем центроид объемом тетраэдра
             let centroid_i = (p0 + p1 + p2 + p_ref) * 0.25;
             sum_centroid += centroid_i * v_i;
         }
 
-        // 3. Финальные расчеты.
-        // Если нормаль плоскости смотрит "вверх", объем погруженной части
-        // корпуса (нормали которого "наружу") будет отрицательным.
-        // Это нормально, берем модуль.
         let abs_volume = total_volume.abs();
-
         let center_of_buoyancy = if abs_volume > f64::EPSILON {
-            // Делим на знаковый объем, чтобы сохранить правильную ориентацию центра
             sum_centroid / total_volume
         } else {
             Vec3::ZERO
         };
+
         Hydrostatics {
             volume: abs_volume,
             center_of_buoyancy,
         }
     }
-    //
-    //
+
     pub fn calculate_waterline_properties(&self) -> (f64, Vec3) {
         let edges = &self.waterline_edges;
-
         if edges.is_empty() {
             return (0.0, Vec3::ZERO);
         }
 
-        // 1. Сдвиг в локальный ноль для защиты от потери точности f64
         let mut sum_pts = Vec3::ZERO;
         for edge in edges {
             sum_pts += edge[0] + edge[1];
@@ -122,47 +76,33 @@ impl SlicedMesh {
         let mut moment_y = 0.0;
         let mut z_sum = 0.0;
 
-        // 2. Интегрируем только по компонентам X и Y
         for edge in edges {
-            // Точки относительно origin
             let p1 = edge[0] - origin;
             let p2 = edge[1] - origin;
 
-            // 2D детерминант в плоскости XY (векторное произведение проекций)
             let det = p1.x * p2.y - p2.x * p1.y;
-
             signed_area_2x += det;
 
-            // Статические моменты проекции
             moment_x += (p1.x + p2.x) * det;
             moment_y += (p1.y + p2.y) * det;
-
-            // Z просто усредняем для информации о положении плоскости
             z_sum += p1.z + p2.z;
         }
 
-        // Площадь проекции (берем модуль в конце, чтобы учесть направление обхода)
         let area = signed_area_2x.abs() / 2.0;
-
         if area < 1e-10 {
             return (0.0, origin);
         }
 
-        // 3. Вычисление центра тяжести проекции (центроида)
-        // Формула: Cx = sum( (x1+x2) * det ) / (3 * sum(det))
         let cx = moment_x / (3.0 * signed_area_2x);
         let cy = moment_y / (3.0 * signed_area_2x);
         let cz = z_sum / (edges.len() * 2) as f64;
 
         let centroid = Vec3::new(origin.x + cx, origin.y + cy, origin.z + cz);
-
         (area, centroid)
     }
-    ///
-    /// Расчет момента инерции свободной поверхности жидкости
+
     pub fn inertia(&self) -> (f64, f64) {
         let edges = &self.waterline_edges;
-
         if edges.is_empty() {
             return (0.0, 0.0);
         }
@@ -174,12 +114,10 @@ impl SlicedMesh {
         let mut iy_0 = 0.0;
 
         for edge in edges {
-            let (x1, y1) = (edge[0].x as f64, edge[0].y as f64);
-            let (x2, y2) = (edge[1].x as f64, edge[1].y as f64);
+            let (x1, y1) = (edge[0].x, edge[0].y);
+            let (x2, y2) = (edge[1].x, edge[1].y);
 
-            // Интеграл по контуру (формула Гаусса/Грина)
             let f = x1 * y2 - x2 * y1;
-            
             area += f;
             sx += (y1 + y2) * f;
             sy += (x1 + x2) * f;
@@ -190,19 +128,15 @@ impl SlicedMesh {
         let area = area / 2.0;
         if area.abs() < 1e-10 { return (0.0, 0.0); }
 
-        // Координаты центра тяжести сечения
         let cy = sx / (6.0 * area);
         let cx = sy / (6.0 * area);
 
-        // Моменты относительно центральных осей (теорема Штейнера)
-        // Формула: I_central = |I_origin / 12| - Area * dist^2
         let ix = (ix_0 / 12.0).abs() - area.abs() * cy * cy;
         let iy = (iy_0 / 12.0).abs() - area.abs() * cx * cx;
 
         (ix, iy)
     }
-    ///
-    /// Расчет длинны и ширины по ватерлинии
+
     pub fn waterline_size(&self) -> (f64, f64) {
         let (min_p, max_p) = self.waterline_edges
             .iter()
@@ -212,8 +146,8 @@ impl SlicedMesh {
 
                 |((min_x, min_y), (max_x, max_y)), p| {
                     (
-                        (min_x.min(p.x as f64), min_y.min(p.y as f64)),
-                        (max_x.max(p.x as f64), max_y.max(p.y as f64)),
+                        (min_x.min(p.x), min_y.min(p.y)),
+                        (max_x.max(p.x), max_y.max(p.y)),
                     )
                 },
             );
@@ -223,5 +157,44 @@ impl SlicedMesh {
         } else {
             (max_p.0 - min_p.0, max_p.1 - min_p.1)
         }
+    }
+
+    /// Вычисляет характеристики погруженного поперечного сечения (шпангоута) на координате X.
+    /// Возвращает: (Площадь сечения, Погруженная ширина B, Погруженная высота T)
+    pub fn calculate_cross_section(&self, x_coord: f64) -> (f64, f64, f64) {
+        if self.submerged_triangles.is_empty() {
+            return (0.0, 0.0, 0.0);
+        }
+
+        let section_plane = Plane {
+            normal: Vec3::X,
+            d: x_coord,
+        };
+
+        // Сечем подводные грани. 
+        // Локальные 2D оси: U = Y (ширина), V = Z (высота шпангоута)
+        let section_2d = section_plane.slice_triangles(
+            &self.submerged_triangles, 
+            Vec3::Y, 
+            Vec3::Z
+        );
+
+        let area = section_2d.calculate_area();
+        let (width, height) = section_2d.size();
+
+        (area, width, height)
+    }
+    /// Максимальные размеры (dx, dy, dz)
+    pub fn aabb(&self) -> (f64, f64, f64) {
+        let (x_min, y_min, z_min, x_max, y_max, z_max) = self.submerged_triangles.iter().fold((f64::MAX, f64::MAX, f64::MAX, f64::MIN, f64::MIN, f64::MIN), |(x_min, y_min, z_min, x_max, y_max, z_max), [p1, p2, p3]| 
+            (
+                x_min.min(p1.x).min(p2.x).min(p3.x),
+                y_min.min(p1.y).min(p2.y).min(p3.y),
+                z_min.min(p1.z).min(p2.z).min(p3.z),
+                x_max.max(p1.x).max(p2.x).max(p3.x),
+                y_max.max(p1.y).max(p2.y).max(p3.y),
+                z_max.max(p1.z).max(p2.z).max(p3.z)
+            ));
+        (x_max - x_min, y_max - y_min, z_max - z_min)
     }
 }

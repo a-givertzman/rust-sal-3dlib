@@ -1,9 +1,16 @@
 use std::{fs::File, path::Path, sync::Arc};
 
 use parry3d_f64::{math::Vec3, shape::TriMesh};
-use sal_3dlib_core::math::Bounds;
 use sal_core::error::Error;
 use bincode::{Decode, Encode};
+
+#[derive(Debug, Clone)]
+pub struct Windage {
+    pub area: f64,
+    pub center_x: f64,
+    pub center_z: f64, 
+}
+
 
 #[derive(Debug, Clone, Encode, Decode)]
 pub struct WindageColumn {
@@ -109,15 +116,17 @@ impl WindageProfile {
             columns,
         }
     }
-
-    pub fn calculate_area(&self, draught: f64, trim_deg: f64) -> (f64, f64, f64, f64) {
+    /// Расчет площали и центра парусности
+    /// возвращает результат для площадей над и под ватеринией
+    pub fn calculate_area(&self, draught: f64, trim_deg: f64) -> (Windage, Windage) {
         let trim_tan = trim_deg.to_radians().tan();
         let mut av = 0.0;
         let mut mx_sum = 0.0;
         let mut mz_sum = 0.0;
-        let mut sub_area = 0.0;
+        let mut sub_av = 0.0;
+        let mut sub_mx_sum = 0.0;
         let mut sub_mz_sum = 0.0;
-
+        
         for (ix, col) in self.columns.iter().enumerate() {
             if col.intervals.is_empty() {
                 continue;
@@ -145,19 +154,28 @@ impl WindageProfile {
                 if z_sub_end > z_sub_start {
                     let h = z_sub_end - z_sub_start;
                     let area = h * self.step;
-                    sub_area += area;
+                    sub_av += area;
+                    sub_mx_sum += x_c * area;
                     sub_mz_sum += (z_sub_start + z_sub_end) * 0.5 * area;
                 }
             }
         }
 
-        let cz_sub = if sub_area > 1e-7 {
-            sub_mz_sum / sub_area
+        let center = |m: f64, a: f64| if a > 1e-7 {
+            m / a
         } else {
             0.0
         };
 
-        (av, mx_sum, mz_sum, cz_sub)
+        (Windage {
+            area: av,
+            center_x: center(mx_sum, av),
+            center_z: center(mz_sum, av),
+        }, Windage {
+            area: sub_av,
+            center_x: center(sub_mx_sum, sub_av),
+            center_z: center(sub_mz_sum, sub_av),
+        })
     }
     ///
     pub fn calculate_area_array(&self, draught: f64, trim_deg: f64) -> Vec<f64> {

@@ -6,25 +6,9 @@
 //
 pub mod file_io;
 mod tests;
-
 use sal_core::{dbg::Dbg, error::Error};
 use std::{num::ParseFloatError, str::FromStr, sync::OnceLock};
-///
-/// Cached dataset lazyly read from the file on the first access.
-///
-/// # Examples
-/// ```
-/// use sal_sync::services::entity::dbg_id::Dbg;
-/// //
-/// // only initializing, no file reading
-/// let Dbg = Dbg("cache creator".to_owned());
-/// let file_path = "/path/to/cache/file";
-/// let cache = Cache::new(&Dbg, file_path);
-/// // the first call causes reading file
-/// let _ = cache.get(&[None, Some(1.0)]);
-/// // the second call uses taken dataset
-/// let _ = cache.get(&[Some(2.0)]);
-/// ```
+
 pub struct Cache<T> {
     dbg: Dbg,
     // таблица данных в виде одного непрерывного вектора
@@ -160,49 +144,6 @@ impl<T: PartialOrd> Cache<T> {
 impl Cache<f64> {
     ///
     /// Returns approximated values based on given set.
-    ///
-    /// This is a safe method in terms of bounds: If `approx_vals` has more elements than [Cache] supports,
-    /// this method returns `None`. In contrast, the empty vector returns if no value found.
-    ///
-    /// # Panics
-    /// This method panics if at least one of the statements is true:
-    /// - self.table not init
-    /// - `approx_vals` contains a non-comparable value (e. g. _NaN_),
-    /// non-comparable value (e. g. _NaN_)
-    /// qnt_keys >= vals len
-    /// key is out of range
-    /// query.len() > keys.len()
-    ///
-    /// # Examples
-    /// ```
-    /// fn explaination(cache: Cache<f64>) {
-    ///     // get all rows of the file behind `cache`
-    ///     let _ = cache.get(&[]);
-    ///     // get approximated (or equal) rows, which values are calculated
-    ///     // as the average of each columns between top and low bounds
-    ///     // (the bounds are selected only for the first column):
-    ///     // *cache file*
-    ///     // |  ...     |
-    ///     // |  0.0 ... | <-- top bound row
-    ///     // | (0.5)    | <-- given value
-    ///     // |  1.0 ... | <-- low bound row
-    ///     // |  ...     |
-    ///     // ------------
-    ///     // ... - one or more values of type f64
-    ///     let _ = cache.get(&[Some(0.5)]);
-    ///     // similar to the the previous example,
-    ///     // but the bounds are selected for the 2nd and 4th columns:
-    ///     // *cache file*
-    ///     // | *  ... ... ...  ... |
-    ///     // | *  0.0  *  0.1  ... | <-- top bound row
-    ///     // |   (0.1)   (0.2)     | <-- given values
-    ///     // | *  1.0  *  0.5  ... | <-- low bound row
-    ///     // | *  ... ... ...  ... |
-    ///     // -----------------------
-    ///     // * - any value of type f64
-    ///     let _ = cache.get(&[None, Some(0.1), None, Some(0.2)]);
-    /// }
-    /// ```
     pub fn get(&self, query: &[f64]) -> Vec<f64> {
         let keys = self
             .keys
